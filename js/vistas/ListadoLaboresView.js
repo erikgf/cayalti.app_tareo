@@ -48,6 +48,7 @@ var ListadoLaboresView = function (fecha_dia,  servicio_frm, cache, usuario) {
             var uiRegistroLabores = rs2Array(res.UIRegistroLabores.rows);
             self.$el.html(self.template({
                 nombre_usuario: usuario.nombre_usuario,
+                imagen_icon: VARS.GET_ICON(),
                 //turno: res.UITurnoDescripcion.rows.item(0).descripcion,
             	fecha_registro: fechaRegistro,
                 fecha_registro_raw : fecha_dia,

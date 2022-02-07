@@ -22,7 +22,7 @@
 </script> <script id='FrmRegistroAsistenciaView-hbs' type='text/template'>	<header class="bar bar-nav">
 		          <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
 			        <span class="icon icon-left-nav pull-left"></span>
-		          	<img class="vertical-center" src="assets/img/logo-mini.png"/>
+		          	<img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
 		          </a>
 		          <h1 class="title">Registrar Asistencia</h1>
 	</header>
@@ -185,7 +185,7 @@
 	    </div></script> <script id='FrmRegistroLaborView-hbs' type='text/template'>	<header class="bar bar-nav">
             <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
                     <span class="icon icon-left-nav pull-left"></span>
-                    <img class="vertical-center" src="assets/img/logo-mini.png"/>
+                    <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
             </a>
             <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
                 <div class="dropdown-rotulo">{{nombre_usuario}}</div>
@@ -224,7 +224,7 @@
 	    </div></script> <script id='FrmRegistroTareoView-hbs' type='text/template'>    	<header class="bar bar-nav">
             <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
                     <span class="icon icon-left-nav pull-left"></span>
-                    <img class="vertical-center" src="assets/img/logo-mini.png"/>
+                    <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
             </a>
             <button type="button" class="btn btn-primary btnasignar btn-sm btn-nav pull-right">ASIGNAR</button>
             <h1 class="title">Tareo</h1>
@@ -331,7 +331,7 @@
 		</div>
 </script> <script id='InicioView-hbs' type='text/template'>    	<header class="bar bar-nav">
     		<div class="btn-bar btn-nav pull-left">
-    			<img class="vertical-center" src="assets/img/logo-mini.png"/>
+    			<img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
     		</div>
             <div class="btn btn-nav dropdown pull-right" id="btn-menu">
                 <div class="dropdown-rotulo">{{nombre_usuario}}</div>
@@ -493,7 +493,7 @@
 </script> <script id='ListadoLaboresView-hbs' type='text/template'>    	<header class="bar bar-nav">
             <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
                     <span class="icon icon-left-nav pull-left"></span>
-                    <img class="vertical-center" src="assets/img/logo-mini.png"/>
+                    <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
             </a>
             <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
                 <div class="dropdown-rotulo">{{nombre_usuario}}</div>
@@ -582,6 +582,12 @@
       </div>
       <div class="card" style="padding: 16px;">
         <form>
+              <select required id="txt-seleccionar-empresa">
+                <option value="">Seleccionar Empresa</option>
+                <option value="001">CAYALTI</option>
+                <option value="002">YARAMBAMBA</option>
+              </select> 
+              <hr>
               <input required type="text" id="txt-login" value="" placeholder="Usuario">
               <input required type="password" id="txt-clave" value="" placeholder="Clave">
               <button class="btn btn-block btn-appbase">INGRESAR</button>
@@ -605,7 +611,7 @@
     	</div></script> <script id='SeleccionOpcionView-hbs' type='text/template'>    	<header class="bar bar-nav">
             <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
                     <span class="icon icon-left-nav pull-left"></span>
-                    <img class="vertical-center" src="assets/img/logo-mini.png"/>
+                    <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
             </a>
             <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
                 <div class="dropdown-rotulo">{{nombre_usuario}}</div>

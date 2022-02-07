@@ -11,7 +11,10 @@ var SincronizadorClase = function (servicio, servicio_web, tablasCargar) {
         TITULO = "Sincronizando",
         TEXTO_INFORMACION = "Conectando...";
 
+    var empresaSeleccionada = "";
+
     this.initialize = function(){
+        empresaSeleccionada = localStorage.getItem(VARS.NOMBRE_STORAGE+"_EMPRESA");
         return this;
     };
 
@@ -187,6 +190,7 @@ var SincronizadorClase = function (servicio, servicio_web, tablasCargar) {
             progressBar.completarPorcentaje(errorString);
         } else {
             localStorage.setItem(VARS.NOMBRE_STORAGE+"_FECHA",getHoy());
+            localStorage.setItem(VARS.NOMBRE_STORAGE+"_EMPRESASINCRONIZADA", empresaSeleccionada);
             progressBar.completarPorcentaje(cantidadRegistros == "0" ? ERROR_NO_REGISTROS : OK_TEXT);   
         }
         

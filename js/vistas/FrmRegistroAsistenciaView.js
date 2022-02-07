@@ -30,7 +30,10 @@ var FrmRegistroAsistenciaView = function (servicio_frm, cache, data_usuario, fec
     };
  
     this.render = function() {
-        this.$el.html(this.template({fecha_registro : formateoFecha(fecha_dia)}));
+        this.$el.html(this.template({
+                    fecha_registro : formateoFecha(fecha_dia), 
+                    imagen_icon: VARS.GET_ICON()
+                }));
 
         $content = this.$el.find(".content");
         $filtro = this.$el.find("input[type=number]");

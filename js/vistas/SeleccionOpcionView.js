@@ -44,6 +44,7 @@ var SeleccionOpcionView = function (fecha_dia, servicio_frm, servicio_web, cache
             }
 
             self.$el.html(self.template({
+                imagen_icon: VARS.GET_ICON(),
                 nombre_usuario: usuario.nombre_usuario,
             	fecha_registro: fechaRegistro,
                 fecha_registro_raw : fecha_dia,

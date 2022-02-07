@@ -32,6 +32,8 @@ var InicioView = function (data_usuario, servicio_web, servicio) {
     this.render = function() {	    
 	    var objRender = data_usuario;
 	    objRender.nombre_app = VARS.NOMBRE_APP;
+	    objRender.imagen_icon = VARS.GET_ICON();
+
 	    this.$el.html(self.template(objRender));
 		$lista_dias = self.$el.find(".lista-dias");
 	    this.consultarDiasRegistro();

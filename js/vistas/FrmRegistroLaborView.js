@@ -24,7 +24,8 @@ var FrmRegistroLaborView = function (servicio_frm, cache, usuario, fecha_dia, id
     this.render = function() {
 	    this.$el.html(this.template({
                 nombre_usuario: usuario.nombre_usuario,
-                fecha_registro : formateoFecha(fecha_dia)
+                fecha_registro : formateoFecha(fecha_dia),
+                imagen_icon: VARS.GET_ICON()
             }));
       
         this.setDOM();

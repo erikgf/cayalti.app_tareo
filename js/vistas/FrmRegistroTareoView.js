@@ -136,6 +136,7 @@ var FrmRegistroTareoView = function (servicio_frm, cache, data_usuario, params, 
                     idturno = uiCabecera.idturno;
 
                     self.$el.html(self.template({fecha_registro : formateoFecha(fecha_dia), 
+                                                    imagen_icon: VARS.GET_ICON(),
                                                     turno: uiCabecera.turno,
                                                     idturno : idturno,
                                                     labor : uiCabecera.labor, 
