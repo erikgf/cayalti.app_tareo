@@ -1,0 +1,40 @@
+	<header class="bar bar-nav">
+            <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+                    <span class="icon icon-left-nav pull-left"></span>
+                    <img class="vertical-center" src="assets/img/logo-mini.png"/>
+            </a>
+            <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
+                <div class="dropdown-rotulo">{{nombre_usuario}}</div>
+            </div>
+            <h1 class="title">Registro Labor</h1>
+        </header>
+	<style type="text/css">
+
+		.bloque-mensaje{
+			padding: 10px 5px;
+    		margin-bottom: 10px;
+		}
+
+	</style>
+	    <div class="content">	
+	    	<div class="content-padded">
+	    		<h6 class="text-left">REGISTRO DE LABOR</h6>
+		    	<form>
+		    	  <select class="campos">
+				  </select>
+				  <select class="actividades">
+				  </select>
+				  <select class="labores">
+				  </select>
+				  <select class="turnos">
+				  </select>
+				  <select class="tipotareo">
+				  	<option value="T">POR TAREO</option>
+				  	<option value="J" selected>JORNAL</option>
+				  </select>
+				  <div class="bloque-mensaje"></div>
+				  <button type="button" class="btn btn-appbase btnguardar btn-block">GUARDAR</button>
+				  <a href="javascript:;" onclick="history.back();" class="btn-sm">VOLVER A LA LISTA</button>
+				</form>
+			</div>
+	    </div>

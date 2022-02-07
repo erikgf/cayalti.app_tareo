@@ -1,0 +1,15 @@
+<ul class="lista-asistencia table-view">
+	{{#each asistentes}}
+	<li class="table-view-cell cell-{{#if_ tipo_registro_raw '==' 'E'}}entrada{{else}}salida{{/if_}}">
+		{{#if_ estado_envio '<' 1}}
+		<span data-nombre="{{nombres_apellidos}}" data-tiporegistro="{{tipo_registro_raw}}" data-dnipersonal="{{dni}}" data-numeroacceso="{{numero_acceso}}" class="btn-eliminar icon icon-trash"></span>
+		{{/if_}}
+		<div class="nombre">({{indexerReverse ../total @index}}) {{dni}} - {{nombres_apellidos}}</div>
+		<div class="tipo-registro">{{tipo_registro}}: {{hora}} 
+			{{#if_ estado_envio '>=' 1}}
+			<span class="badge badge-turno-enviado bg-verde"><b class="icon icon-check"></b></span>
+			{{/if_}}
+		</div>
+	</li> 
+	{{/each}}
+</ul>

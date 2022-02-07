@@ -1,0 +1,52 @@
+    	<header class="bar bar-nav">
+    		<div class="btn-bar btn-nav pull-left">
+    			<img class="vertical-center" src="assets/img/logo-mini.png"/>
+    		</div>
+            <div class="btn btn-nav dropdown pull-right" id="btn-menu">
+                <div class="dropdown-rotulo">{{nombre_usuario}}</div>
+                <div class="dropdown-content">
+                  <a href="javascript:;" id="btn-actualizar">Sincronizar</a>
+                  <a href="javascript:;" onclick="cerrarSesion();">Cerrar Sesión</a>
+                </div>
+            </div>
+    		<h1 class="title">Inicio</h1>
+    	</header>
+
+        <style type="text/css">
+
+            .zona-enviar-datos{
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                text-align: center;
+                min-height: 82px;
+                width: 100%;
+            }
+
+
+            .lista-dias li a{
+                text-align: center;
+                padding-right: 11px !important;
+                font-size: 1.1em;
+            }
+
+            .zona-btn-eliminar{
+                bottom: 0;
+                position: absolute;
+                left: 0;
+                right: 0;
+                margin: 0 10px;
+            }
+               
+        </style>
+
+
+    	<div class="content">
+    		<div class="content-padded text-center">
+                <h6 class="text-left">DÍAS DE REGISTRO</h6>
+                <ul class="table-view lista-dias"></ul>
+    		</div> 
+            <div class="zona-btn-eliminar">
+                 <button class="btn btn-block btn-negative btn-sm btn-limpiardias">LIMPIAR DÍAS ANTERIORES</button>
+            </div>   
+		</div>

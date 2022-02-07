@@ -1,0 +1,73 @@
+    	<header class="bar bar-nav">
+            <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+                    <span class="icon icon-left-nav pull-left"></span>
+                    <img class="vertical-center" src="assets/img/logo-mini.png"/>
+            </a>
+            <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
+                <div class="dropdown-rotulo">{{nombre_usuario}}</div>
+            </div>
+            <h1 class="title">Listado Tareo</h1>
+        </header>
+
+        <style type="text/css">
+
+        .badge-turno{
+            font-size: 18px !important;
+            background: #ff4444 !important;
+            color: white !important;
+        }
+
+        .media-body p{
+            color: black;
+        }
+
+        .float{
+            position:fixed;
+            width:60px;
+            height:60px;
+            bottom:30px;
+            right:30px;        
+            border-radius:50px;
+            text-align:center;
+            box-shadow: 2px 2px 3px #999;
+        }
+
+        .my-float{
+            margin-top:22px;
+        }
+
+        .lbl-actividad{
+            font-size: 1.2em;
+        }
+
+        </style>
+
+        <div class="content">
+            <div class="content-padded">  
+                <div class="text-center">
+                    <h4>Fecha de Trabajo</h4>      
+                    <h3 class="fecha">{{fecha_registro}}</h3>
+                </div>  
+                <hr>
+                <ul class="table-view">
+                    {{#each listado_labores}}
+                    <li class="table-view-cell" data-idedicion="{{../fecha_registro_raw}}/{{id}}" data-cadenaid="{{../fecha_registro_raw}}/{{idlabor}}/{{idcampo}}/{{idturno}}">
+                        <a class="navigate-right" href="javascript:void(0);" style="font-size:.8em">
+                          <span class="badge badge-md">{{registros_totales}}</span>
+                          <div class="media-body">
+                            <small>{{campo}} | <b>{{turno}}</b><br></small>
+                            <b class="lbl-actividad">{{actividad}}</b><br>
+                            <b>{{labor}}</b><br>
+                          </div>
+                        </a>
+                   </li>
+                   {{else}}
+                   <div class="text-center"><small>No hay Labores Registradas</small></div>
+                   {{/each}}
+                </ul>
+            </div>  
+
+            <a href="#registro-labor/{{fecha_registro_raw}}/" class="btn-appbase float">
+                <span class="icon icon-plus my-float"></i>
+            </a>
+        </div>

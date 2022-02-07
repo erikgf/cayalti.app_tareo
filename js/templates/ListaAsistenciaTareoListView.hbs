@@ -1,0 +1,7 @@
+	{{#asistentes}}
+	<li class="table-view-cell{{#if_ seleccionado '==' '1'}} cell-seleccionado{{/if_}}" data-dni="{{dni}}" >
+		<div class="nombre">{{dni}} - {{nombres_apellidos}}</div>
+	</li> 
+	{{else}}
+	<p>No hay trabajadores disponibles.</p>
+	{{/asistentes}}

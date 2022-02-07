@@ -1,0 +1,88 @@
+	<style type="text/css">
+		.table-view-row-absolute{
+			position: relative;
+			height: 40px;
+		}
+
+		.table-view-row-absolute input, .table-view-row-absolute button, .table-view-row-absolute .label-guardado{
+			 position: absolute;
+		}
+
+		.table-view-row-absolute input{
+			left: 120px;
+			width: 75px;
+			height: 35px;
+		}
+
+		.table-view-row-absolute button{
+			right: 0;
+			width: 30px;
+			height: 30px
+		}
+
+		.label-guardado{
+			left: 185px;
+		    position: absolute;
+		    padding: 5px 10px;
+		    margin-top: 5px;
+		    border-radius: 1em;
+		    font-size: 10px;
+		}
+
+		.icon-check{
+			font-size: 10px;
+		}
+	</style>
+	{{#asignaciones}}
+		<li class="table-view-cell">
+			<div class="nombre">{{dni}} - {{nombres_apellidos}}</div>
+
+			{{#if_ ../idturno '==' '03'}}
+					<div class="table-view-row table-view-row-absolute" style="position: relative;height: 40px;">
+					{{#if_ numero_horas_diurno '!=' ''}}
+						<div>Horas Diurno</div>
+						<input type="number" data-dni="{{dni}}" class="holo text-center horas-uno" value="{{numero_horas_diurno}}">
+						<span class="escondido label-guardado btn-appbase"> <span class="icon icon-check"></span></span>
+					{{/if_}}
+					<button data-dni="{{dni}}" data-nombres="{{nombres_apellidos}}" class="bg-rojo btn btn-sm "><span class="icon icon-trash"></span></button>
+					</div>
+
+					<div class="table-view-row table-view-row-absolute" style="position: relative;height: 40px;">
+					{{#if_ numero_horas_nocturno '!=' ''}}	
+						<div>Horas Nocturno</div>
+						<input type="number" data-dni="{{dni}}" class="holo text-center horas-dos" value="{{numero_horas_nocturno}}">
+						<span class="escondido label-guardado btn-appbase"> <span class="icon icon-check"></span></span>
+					{{/if_}}
+					</div>
+			{{else}}
+				<div class="table-view-row table-view-row-absolute" style="position: relative;height: 40px;">
+					{{#if_ ../../idturno '==' '01'}}
+						{{#if_ numero_horas_diurno '!=' ''}}
+						<div>Horas Diurno</div>
+						<input type="number" data-dni="{{dni}}" class="holo text-center horas-uno" value="{{numero_horas_diurno}}"/>
+						<span class="escondido label-guardado btn-appbase"> <span class="icon icon-check"></span></span>
+						{{/if_}}
+					{{/if_}}
+
+					{{#if_ ../../idturno '==' '02'}}
+						{{#if_ numero_horas_nocturno '!=' ''}}
+							<div>Horas Nocturno</div>
+							<input type="number" data-dni="{{dni}}" class="holo text-center horas-uno" value="{{numero_horas_nocturno}}">
+							<span class="escondido label-guardado btn-appbase"> <span class="icon icon-check"></span></span>
+						{{/if_}}
+					{{/if_}}
+
+
+					<button data-dni="{{dni}}" data-nombres="{{nombres_apellidos}}" class="bg-rojo btn btn-sm "><span class="icon icon-trash"></span></button>
+				</div>
+			{{/if_}}
+	<!--
+			<div class="text-right">
+				<button data-dni="{{dni}}" class="btn btn-sm bg-verde {{#if_ geocheck '==' '1'}} escondido{{/if_}}">GUARDAR GPS</button>
+				<div class="badge {{#if_ geocheck '==' '0'}} escondido{{/if_}} btn-appbase">GPS GUARDADO <span class="icon icon-check"></span></div>
+			</div>
+			-->
+		</li> 
+	{{else}}
+		<p>No hay asignaciones.</p>
+	{{/asignaciones}}

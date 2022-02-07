@@ -1,0 +1,164 @@
+	<header class="bar bar-nav">
+		          <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+			        <span class="icon icon-left-nav pull-left"></span>
+		          	<img class="vertical-center" src="assets/img/logo-mini.png"/>
+		          </a>
+		          <h1 class="title">Registrar Asistencia</h1>
+	</header>
+	<style type="text/css">
+
+		input[type=number] {
+		    -webkit-box-sizing: border-box;
+		    -moz-box-sizing: border-box;
+		    box-sizing: border-box;
+		    padding: 0 10px;
+		    font-size: 16px;
+		    border-radius: 2px;
+		}
+
+		.bar input[type=number] {
+		    height: 35px;
+		   	margin: 6px 0;
+		}
+
+		.bar-standard .turno{
+			padding-top: 8px;font-weight: bold;
+		}
+
+		.bar-standard form{
+			display: grid;
+		    margin: 0;
+		    padding: 0;
+		    grid-template-columns: 70% auto;
+		}
+
+		.resultado-mensaje{
+			padding: 10px 12px;
+		    color: white;
+		    font-size: 20px;
+    		margin-bottom: 8px;
+		}
+		.resultado-mensaje.no-encontrado{
+		    background-color: #ff4d4d;
+		    border: 2px solid #e99292;
+		}
+		.resultado-mensaje.encontrado{
+		    background-color: #5cb85c;
+		    border: 2px solid #8aba8a;
+		}
+
+		.content{
+			padding-top: 120px !important;
+		}
+
+		.table-view-row{
+			grid-template-columns: 33% auto;
+		}
+
+		.zona-registros{
+			font-size: 11.5px;
+		    text-align: center;
+			font-weight: bold;
+			padding: 2px;
+		}
+
+		.busqueda-resultado{
+			position: absolute;
+		    top: 130px;
+		    width: 100%;
+		    height: min-content;
+		    z-index: 100;
+		}
+
+		.busqueda-resultado-container{
+            margin: 0px 10px 10px 10px;
+		    background: white;
+		}
+
+		.lista-asistencia{
+			margin-top: 0px !important;
+			z-index: 99;
+		}
+
+		.table-view{
+			overflow-y: auto;
+    		height: 100%;
+		}
+
+		.table-view-cell{
+			padding: 5px 45px 5px 10px;
+		}
+
+		.nombre{
+			text-overflow: ellipsis;
+		    white-space: nowrap;
+		    overflow: hidden;
+		    font-size: 13.5px;
+		}
+
+		.tipo-registro{
+			font-size: 12px;
+    		font-weight: bold;
+		}
+
+		.cell-entrada{
+			background-color: #54a7ca;
+			color: white;
+			border: 0;
+		}
+
+		.cell-salida{
+			background-color: #234376;
+			color: white;
+			border: 0;
+		}
+
+		.content-listado{
+			height: 100%;
+    		overflow: auto;
+		}
+
+        .badge-turno-enviado{
+            color: white !important;
+            padding: 2px;
+        }
+
+        .btn-scan{
+        	font-size: 1.1em !important;
+        }
+
+        .btn-eliminar{
+        	position: absolute;
+		    right: 0;
+		    top: 0;
+		    padding: 8px 12.5px;
+		    background: #f33b3b;
+		    z-index: 200;
+		    -webkit-box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.75);
+			-moz-box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.75);
+			box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.75);
+        }
+
+
+        .pseudo-row:after{
+        	content: "";
+			display: table;
+			clear: both;
+        }
+
+
+	</style>
+
+	    <div class="bar bar-standard bar-header-secondary" style="height: 75px;">	 
+	    	<small>Fecha de Trabajo: <b>{{fecha_registro}}</b></small>
+	    	<form class="pseudo-row">
+			  <input style="float: left;" type="number" placeholder="Ingresar DNI" maxlength="8" class="">
+			  <div style="float: left;" class="zona-registros">
+			  	<button class=" btn-scan btn btn-primary btn-block">ESCANEAR</button>
+			  </div>
+			</form>   	
+	    </div>
+	    <div class="content">	
+	    	<div class="content-listado"></div>    		    	 
+			<div class="busqueda-resultado"></div>
+	    </div>

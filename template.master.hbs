@@ -1,0 +1,698 @@
+ <script id='BusquedaResultadoComponente-hbs' type='text/template'>{{#if no_encontrado}}
+	<div class="resultado-mensaje no-encontrado">
+		No se ha encontrado personal con DNI: "{{dni}}"
+	</div>
+{{else}}
+	{{#if registro_existente}}
+	<div class="resultado-mensaje encontrado-existente">
+		<b>REGISTRO EXISTENTE:  <i>{{hora}}</i></b>
+	</div>
+	{{else}}
+	<div class="resultado-mensaje encontrado">
+		<b>REGISTRO GUARDADO:  <i>{{hora}}</i></b>
+	</div>
+	{{/if}}
+	<ul class="table-view" style="padding-bottom: 20px;">
+		<li class="table-view-row">
+			<div>Nombres: </div>
+			<div>{{dni}} - {{nombres_apellidos}}</div>
+		</li>  
+	</ul>
+{{/if}}
+</script> <script id='FrmRegistroAsistenciaView-hbs' type='text/template'>	<header class="bar bar-nav">
+		          <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+			        <span class="icon icon-left-nav pull-left"></span>
+		          	<img class="vertical-center" src="assets/img/logo-mini.png"/>
+		          </a>
+		          <h1 class="title">Registrar Asistencia</h1>
+	</header>
+	<style type="text/css">
+
+		input[type=number] {
+		    -webkit-box-sizing: border-box;
+		    -moz-box-sizing: border-box;
+		    box-sizing: border-box;
+		    padding: 0 10px;
+		    font-size: 16px;
+		    border-radius: 2px;
+		}
+
+		.bar input[type=number] {
+		    height: 35px;
+		   	margin: 6px 0;
+		}
+
+		.bar-standard .turno{
+			padding-top: 8px;font-weight: bold;
+		}
+
+		.bar-standard form{
+			display: grid;
+		    margin: 0;
+		    padding: 0;
+		    grid-template-columns: 70% auto;
+		}
+
+		.resultado-mensaje{
+			padding: 10px 12px;
+		    color: white;
+		    font-size: 20px;
+    		margin-bottom: 8px;
+		}
+		.resultado-mensaje.no-encontrado{
+		    background-color: #ff4d4d;
+		    border: 2px solid #e99292;
+		}
+		.resultado-mensaje.encontrado{
+		    background-color: #5cb85c;
+		    border: 2px solid #8aba8a;
+		}
+
+		.content{
+			padding-top: 120px !important;
+		}
+
+		.table-view-row{
+			grid-template-columns: 33% auto;
+		}
+
+		.zona-registros{
+			font-size: 11.5px;
+		    text-align: center;
+			font-weight: bold;
+			padding: 2px;
+		}
+
+		.busqueda-resultado{
+			position: absolute;
+		    top: 130px;
+		    width: 100%;
+		    height: min-content;
+		    z-index: 100;
+		}
+
+		.busqueda-resultado-container{
+            margin: 0px 10px 10px 10px;
+		    background: white;
+		}
+
+		.lista-asistencia{
+			margin-top: 0px !important;
+			z-index: 99;
+		}
+
+		.table-view{
+			overflow-y: auto;
+    		height: 100%;
+		}
+
+		.table-view-cell{
+			padding: 5px 45px 5px 10px;
+		}
+
+		.nombre{
+			text-overflow: ellipsis;
+		    white-space: nowrap;
+		    overflow: hidden;
+		    font-size: 13.5px;
+		}
+
+		.tipo-registro{
+			font-size: 12px;
+    		font-weight: bold;
+		}
+
+		.cell-entrada{
+			background-color: #54a7ca;
+			color: white;
+			border: 0;
+		}
+
+		.cell-salida{
+			background-color: #234376;
+			color: white;
+			border: 0;
+		}
+
+		.content-listado{
+			height: 100%;
+    		overflow: auto;
+		}
+
+        .badge-turno-enviado{
+            color: white !important;
+            padding: 2px;
+        }
+
+        .btn-scan{
+        	font-size: 1.1em !important;
+        }
+
+        .btn-eliminar{
+        	position: absolute;
+		    right: 0;
+		    top: 0;
+		    padding: 8px 12.5px;
+		    background: #f33b3b;
+		    z-index: 200;
+		    -webkit-box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.75);
+			-moz-box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.75);
+			box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.75);
+        }
+
+
+        .pseudo-row:after{
+        	content: "";
+			display: table;
+			clear: both;
+        }
+
+
+	</style>
+
+	    <div class="bar bar-standard bar-header-secondary" style="height: 75px;">	 
+	    	<small>Fecha de Trabajo: <b>{{fecha_registro}}</b></small>
+	    	<form class="pseudo-row">
+			  <input style="float: left;" type="number" placeholder="Ingresar DNI" maxlength="8" class="">
+			  <div style="float: left;" class="zona-registros">
+			  	<button class=" btn-scan btn btn-primary btn-block">ESCANEAR</button>
+			  </div>
+			</form>   	
+	    </div>
+	    <div class="content">	
+	    	<div class="content-listado"></div>    		    	 
+			<div class="busqueda-resultado"></div>
+	    </div></script> <script id='FrmRegistroLaborView-hbs' type='text/template'>	<header class="bar bar-nav">
+            <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+                    <span class="icon icon-left-nav pull-left"></span>
+                    <img class="vertical-center" src="assets/img/logo-mini.png"/>
+            </a>
+            <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
+                <div class="dropdown-rotulo">{{nombre_usuario}}</div>
+            </div>
+            <h1 class="title">Registro Labor</h1>
+        </header>
+	<style type="text/css">
+
+		.bloque-mensaje{
+			padding: 10px 5px;
+    		margin-bottom: 10px;
+		}
+
+	</style>
+	    <div class="content">	
+	    	<div class="content-padded">
+	    		<h6 class="text-left">REGISTRO DE LABOR</h6>
+		    	<form>
+		    	  <select class="campos">
+				  </select>
+				  <select class="actividades">
+				  </select>
+				  <select class="labores">
+				  </select>
+				  <select class="turnos">
+				  </select>
+				  <select class="tipotareo">
+				  	<option value="T">POR TAREO</option>
+				  	<option value="J" selected>JORNAL</option>
+				  </select>
+				  <div class="bloque-mensaje"></div>
+				  <button type="button" class="btn btn-appbase btnguardar btn-block">GUARDAR</button>
+				  <a href="javascript:;" onclick="history.back();" class="btn-sm">VOLVER A LA LISTA</button>
+				</form>
+			</div>
+	    </div></script> <script id='FrmRegistroTareoView-hbs' type='text/template'>    	<header class="bar bar-nav">
+            <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+                    <span class="icon icon-left-nav pull-left"></span>
+                    <img class="vertical-center" src="assets/img/logo-mini.png"/>
+            </a>
+            <button type="button" class="btn btn-primary btnasignar btn-sm btn-nav pull-right">ASIGNAR</button>
+            <h1 class="title">Tareo</h1>
+        </header>
+
+        <style type="text/css">
+
+        .badge-turno{
+            padding: 7.5px 12px !important;
+            font-size: 18px !important;
+            background: #ff4444 !important;
+            color: white !important;
+        }
+
+        .bar-header-secondary{
+            height: initial;
+        }
+
+        .bar-header-secondary .table-view{
+            font-size: .85em;
+        }
+    
+        .table-view-cell{
+            padding: 10px;
+        }
+
+        .blk{
+            display: none;
+            padding-top: 1em;
+            overflow-y: scroll;
+        }
+
+        .blkactive{
+            display: block !important;
+        }
+
+        .lst {
+            font-size: .85em;
+        }
+
+        .cell-seleccionado{
+            background-color: #2771e8;
+            color: white;
+        }
+
+        </style>
+
+        <div class="bar bar-standard bar-header-secondary">	 
+            <ul class="table-view">
+                <li class="row-duo table-view-row bold">
+                    <div>{{fecha_registro}}</div>
+                    <div>{{turno}}</div>
+                </li>
+                <div class="row-duo table-view-row">
+                    <div> Campo: {{campo}} </div>
+                    <div> Tareo: {{tipo_tareo}} </div>
+                </div>
+            	<li class="table-view-cell">
+                    <b>Labor: {{labor}}</b>
+				</li>
+                {{#if_ tipo_tareo '==' 'JORNAL'}}
+                    {{#if_ idturno '==' '03'}}
+                    <div class="row-duo table-view-row">
+                        <div>
+                            <div class="row-duo table-view-row">
+                                <label style="font-size:.85em">H.Diurno</label>
+                                <input type="number" class="holo text-center txt-horas-diurno" value="0">
+                            </div>
+                        </div>
+                        <div> 
+                            <div class="row-duo table-view-row">
+                                <label style="font-size:.85em">H.Nocturno</label>
+                                <input type="number" class="holo text-center txt-horas-nocturno" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div class="row-duo table-view-row">
+                        <div> Número de Horas:</div>
+                        <div> <input type="number" class="holo text-center txt-horas" value="0"></div>
+                    </div>
+                    {{/if_}}
+                {{/if_}}
+            </ul>
+	    </div>
+
+    	<div class="content">
+    		<div class="content-padded">    
+             <div class="segmented-control">
+                  <a class="control-item active" id="tabasistencia" data-blk="asistencia">
+                    LISTA ASISTENCIA
+                  </a>
+                  <a class="control-item" id="tabasignacion" data-blk="asignacion">
+                    ASIGNACIÓN
+                  </a>
+                </div>
+                <div id="blkasistencia" class="blk blkactive"> 
+                    <ul class="lst lst-asistencia table-view"></ul>
+                </div>
+                <div id="blkasignacion" class="blk">
+                    <ul class="lst lst-asignaciones table-view"></ul>
+                </div>
+           </div>
+		</div>
+</script> <script id='InicioView-hbs' type='text/template'>    	<header class="bar bar-nav">
+    		<div class="btn-bar btn-nav pull-left">
+    			<img class="vertical-center" src="assets/img/logo-mini.png"/>
+    		</div>
+            <div class="btn btn-nav dropdown pull-right" id="btn-menu">
+                <div class="dropdown-rotulo">{{nombre_usuario}}</div>
+                <div class="dropdown-content">
+                  <a href="javascript:;" id="btn-actualizar">Sincronizar</a>
+                  <a href="javascript:;" onclick="cerrarSesion();">Cerrar Sesión</a>
+                </div>
+            </div>
+    		<h1 class="title">Inicio</h1>
+    	</header>
+
+        <style type="text/css">
+
+            .zona-enviar-datos{
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                text-align: center;
+                min-height: 82px;
+                width: 100%;
+            }
+
+
+            .lista-dias li a{
+                text-align: center;
+                padding-right: 11px !important;
+                font-size: 1.1em;
+            }
+
+            .zona-btn-eliminar{
+                bottom: 0;
+                position: absolute;
+                left: 0;
+                right: 0;
+                margin: 0 10px;
+            }
+               
+        </style>
+
+
+    	<div class="content">
+    		<div class="content-padded text-center">
+                <h6 class="text-left">DÍAS DE REGISTRO</h6>
+                <ul class="table-view lista-dias"></ul>
+    		</div> 
+            <div class="zona-btn-eliminar">
+                 <button class="btn btn-block btn-negative btn-sm btn-limpiardias">LIMPIAR DÍAS ANTERIORES</button>
+            </div>   
+		</div>
+</script> <script id='ListaAsignacionesTareoListView-hbs' type='text/template'>	<style type="text/css">
+		.table-view-row-absolute{
+			position: relative;
+			height: 40px;
+		}
+
+		.table-view-row-absolute input, .table-view-row-absolute button, .table-view-row-absolute .label-guardado{
+			 position: absolute;
+		}
+
+		.table-view-row-absolute input{
+			left: 120px;
+			width: 75px;
+			height: 35px;
+		}
+
+		.table-view-row-absolute button{
+			right: 0;
+			width: 30px;
+			height: 30px
+		}
+
+		.label-guardado{
+			left: 185px;
+		    position: absolute;
+		    padding: 5px 10px;
+		    margin-top: 5px;
+		    border-radius: 1em;
+		    font-size: 10px;
+		}
+
+		.icon-check{
+			font-size: 10px;
+		}
+	</style>
+	{{#asignaciones}}
+		<li class="table-view-cell">
+			<div class="nombre">{{dni}} - {{nombres_apellidos}}</div>
+
+			{{#if_ ../idturno '==' '03'}}
+					<div class="table-view-row table-view-row-absolute" style="position: relative;height: 40px;">
+					{{#if_ numero_horas_diurno '!=' ''}}
+						<div>Horas Diurno</div>
+						<input type="number" data-dni="{{dni}}" class="holo text-center horas-uno" value="{{numero_horas_diurno}}">
+						<span class="escondido label-guardado btn-appbase"> <span class="icon icon-check"></span></span>
+					{{/if_}}
+					<button data-dni="{{dni}}" data-nombres="{{nombres_apellidos}}" class="bg-rojo btn btn-sm "><span class="icon icon-trash"></span></button>
+					</div>
+
+					<div class="table-view-row table-view-row-absolute" style="position: relative;height: 40px;">
+					{{#if_ numero_horas_nocturno '!=' ''}}	
+						<div>Horas Nocturno</div>
+						<input type="number" data-dni="{{dni}}" class="holo text-center horas-dos" value="{{numero_horas_nocturno}}">
+						<span class="escondido label-guardado btn-appbase"> <span class="icon icon-check"></span></span>
+					{{/if_}}
+					</div>
+			{{else}}
+				<div class="table-view-row table-view-row-absolute" style="position: relative;height: 40px;">
+					{{#if_ ../../idturno '==' '01'}}
+						{{#if_ numero_horas_diurno '!=' ''}}
+						<div>Horas Diurno</div>
+						<input type="number" data-dni="{{dni}}" class="holo text-center horas-uno" value="{{numero_horas_diurno}}"/>
+						<span class="escondido label-guardado btn-appbase"> <span class="icon icon-check"></span></span>
+						{{/if_}}
+					{{/if_}}
+
+					{{#if_ ../../idturno '==' '02'}}
+						{{#if_ numero_horas_nocturno '!=' ''}}
+							<div>Horas Nocturno</div>
+							<input type="number" data-dni="{{dni}}" class="holo text-center horas-uno" value="{{numero_horas_nocturno}}">
+							<span class="escondido label-guardado btn-appbase"> <span class="icon icon-check"></span></span>
+						{{/if_}}
+					{{/if_}}
+
+
+					<button data-dni="{{dni}}" data-nombres="{{nombres_apellidos}}" class="bg-rojo btn btn-sm "><span class="icon icon-trash"></span></button>
+				</div>
+			{{/if_}}
+	<!--
+			<div class="text-right">
+				<button data-dni="{{dni}}" class="btn btn-sm bg-verde {{#if_ geocheck '==' '1'}} escondido{{/if_}}">GUARDAR GPS</button>
+				<div class="badge {{#if_ geocheck '==' '0'}} escondido{{/if_}} btn-appbase">GPS GUARDADO <span class="icon icon-check"></span></div>
+			</div>
+			-->
+		</li> 
+	{{else}}
+		<p>No hay asignaciones.</p>
+	{{/asignaciones}}
+</script> <script id='ListaAsistenciaListView-hbs' type='text/template'><ul class="lista-asistencia table-view">
+	{{#each asistentes}}
+	<li class="table-view-cell cell-{{#if_ tipo_registro_raw '==' 'E'}}entrada{{else}}salida{{/if_}}">
+		{{#if_ estado_envio '<' 1}}
+		<span data-nombre="{{nombres_apellidos}}" data-tiporegistro="{{tipo_registro_raw}}" data-dnipersonal="{{dni}}" data-numeroacceso="{{numero_acceso}}" class="btn-eliminar icon icon-trash"></span>
+		{{/if_}}
+		<div class="nombre">({{indexerReverse ../total @index}}) {{dni}} - {{nombres_apellidos}}</div>
+		<div class="tipo-registro">{{tipo_registro}}: {{hora}} 
+			{{#if_ estado_envio '>=' 1}}
+			<span class="badge badge-turno-enviado bg-verde"><b class="icon icon-check"></b></span>
+			{{/if_}}
+		</div>
+	</li> 
+	{{/each}}
+</ul></script> <script id='ListaAsistenciaTareoListView-hbs' type='text/template'>	{{#asistentes}}
+	<li class="table-view-cell{{#if_ seleccionado '==' '1'}} cell-seleccionado{{/if_}}" data-dni="{{dni}}" >
+		<div class="nombre">{{dni}} - {{nombres_apellidos}}</div>
+	</li> 
+	{{else}}
+	<p>No hay trabajadores disponibles.</p>
+	{{/asistentes}}
+</script> <script id='ListadoLaboresView-hbs' type='text/template'>    	<header class="bar bar-nav">
+            <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+                    <span class="icon icon-left-nav pull-left"></span>
+                    <img class="vertical-center" src="assets/img/logo-mini.png"/>
+            </a>
+            <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
+                <div class="dropdown-rotulo">{{nombre_usuario}}</div>
+            </div>
+            <h1 class="title">Listado Tareo</h1>
+        </header>
+
+        <style type="text/css">
+
+        .badge-turno{
+            font-size: 18px !important;
+            background: #ff4444 !important;
+            color: white !important;
+        }
+
+        .media-body p{
+            color: black;
+        }
+
+        .float{
+            position:fixed;
+            width:60px;
+            height:60px;
+            bottom:30px;
+            right:30px;        
+            border-radius:50px;
+            text-align:center;
+            box-shadow: 2px 2px 3px #999;
+        }
+
+        .my-float{
+            margin-top:22px;
+        }
+
+        .lbl-actividad{
+            font-size: 1.2em;
+        }
+
+        </style>
+
+        <div class="content">
+            <div class="content-padded">  
+                <div class="text-center">
+                    <h4>Fecha de Trabajo</h4>      
+                    <h3 class="fecha">{{fecha_registro}}</h3>
+                </div>  
+                <hr>
+                <ul class="table-view">
+                    {{#each listado_labores}}
+                    <li class="table-view-cell" data-idedicion="{{../fecha_registro_raw}}/{{id}}" data-cadenaid="{{../fecha_registro_raw}}/{{idlabor}}/{{idcampo}}/{{idturno}}">
+                        <a class="navigate-right" href="javascript:void(0);" style="font-size:.8em">
+                          <span class="badge badge-md">{{registros_totales}}</span>
+                          <div class="media-body">
+                            <small>{{campo}} | <b>{{turno}}</b><br></small>
+                            <b class="lbl-actividad">{{actividad}}</b><br>
+                            <b>{{labor}}</b><br>
+                          </div>
+                        </a>
+                   </li>
+                   {{else}}
+                   <div class="text-center"><small>No hay Labores Registradas</small></div>
+                   {{/each}}
+                </ul>
+            </div>  
+
+            <a href="#registro-labor/{{fecha_registro_raw}}/" class="btn-appbase float">
+                <span class="icon icon-plus my-float"></i>
+            </a>
+        </div>
+</script> <script id='LoginView-hbs' type='text/template'>        <header class="bar bar-nav">
+          <div class="btn-bar btn-nav pull-left">
+            <img class="vertical-center" src="assets/img/logo-mini.png"/>
+          </div>
+          <div class="btn-base btn-nav dropdown pull-right" id="btn-sincronizar">
+                SINCRONIZAR
+            </div>
+          <h1 class="title">Log In</h1>
+        </header>
+
+<div class="content">
+      <div class="content-padded text-center">
+        <div class="text-center">
+          <h3>{{nombre_app}}</h3>
+        </div>
+        <img src="assets/img/LOGO.png" class="img-logo-main">
+      </div>
+      <div class="card" style="padding: 16px;">
+        <form>
+              <input required type="text" id="txt-login" value="" placeholder="Usuario">
+              <input required type="password" id="txt-clave" value="" placeholder="Clave">
+              <button class="btn btn-block btn-appbase">INGRESAR</button>
+        </form>
+      </div>
+      
+</div></script> <script id='ModalMensajeComponente-hbs' type='text/template'><header class="bar bar-nav">
+	<h1 class="title title-modal-mensaje">{{titulo}}</h1>
+</header>
+<div class="block-progressbar" style="padding-top: 50px;">
+    <small>{{texto_informacion}}</small>
+    <div class="cargando">
+    	<img src="assets/img/cargando.gif" style="height: 35px;">
+    </div>
+</div></script> <script id='ProgressBarComponente-hbs' type='text/template'><header class="bar bar-nav">
+			<h1 class="title title-progressbar">{{titulo}}</h1>
+		</header>
+		<div class="block-progressbar">
+    		<small>{{texto_informacion}}</small>
+    		<progress value="{{valor}}" max="100" style="width: 90%;"></progress>
+    	</div></script> <script id='SeleccionOpcionView-hbs' type='text/template'>    	<header class="bar bar-nav">
+            <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+                    <span class="icon icon-left-nav pull-left"></span>
+                    <img class="vertical-center" src="assets/img/logo-mini.png"/>
+            </a>
+            <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
+                <div class="dropdown-rotulo">{{nombre_usuario}}</div>
+            </div>
+            <h1 class="title">Opciones</h1>
+        </header>
+
+        <style type="text/css">
+
+        .badge-turno{
+            font-size: 18px !important;
+            background: #ff4444 !important;
+            color: white !important;
+        }
+
+        .zona-btn-eliminar{
+            bottom: 80px;
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: 0 10px;
+        }
+
+        .bar-tab{
+            bottom: 0;
+            top: unset;
+            height: 80px;
+        }
+
+        .bar-tab .tab-item {
+            color: black;
+        }
+
+        .bar-tab .tab-item .icon~.tab-label {
+            font-size: 16px;
+        }
+
+        .bar-tab .tab-item-disabled{
+            color: gray;
+        }
+
+        .bar-tab .tab-item-disabled:active {
+            background-color: #dddddd;
+        }
+
+        .btn-left{
+            text-align: left;
+            padding: 15px 0 15px 10px;
+        }
+
+        </style>
+
+        <div class="content">
+            <div class="content-padded text-center">   
+                <h4>Fecha de Trabajo</h4>      
+                <h3 class="fecha">{{fecha_registro}}</h3> 
+                <!-- 
+                <div class="text-left">
+                    <b>Turno:</b>
+                    <select class="txt-turno">
+                        {{#turnos}}
+                            <option value="{{idturno}}">{{descripcion}}</option>
+                        {{/turnos}}
+                    </select>
+                </div>  
+                -->  
+                <hr>
+                <p>
+                    <button data-url="registro-asistencia" class="btn-left btnopcion btn btn-block btn-primary">ASISTENCIA
+                         <span class="badge badge-turno">{{registros_pendientes_envio}} / {{registros_totales}}</span>
+                    </button>
+                </p>
+                <p>
+                    <button data-url="listado-labores" class="btn-left btnopcion btn btn-block btn-appbase">TAREO
+                         <span class="badge badge-turno">{{registros_pendientes_tareo_envio}} / {{registros_tareo_totales}}</span>
+                    </button>
+                </p>
+            </div>  
+            <div class="zona-btn-eliminar">
+                <button class="btn btn-block btn-negative btn-sm btn-eliminardia">ELIMINAR DÍA</button>
+            </div> 
+
+            <div class="bar bar-tab">
+                    <a class="tab-item enviar-datos" href="javascript:;">
+                        <span class="icon icon-download" style="font-size:30px"></span>
+                        <span class="tab-label" style="font-size:20px">ENVIAR DATOS</span>
+                    </a>
+            </div>
+        </div>
+</script>

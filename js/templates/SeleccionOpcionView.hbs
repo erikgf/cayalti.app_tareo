@@ -1,0 +1,93 @@
+    	<header class="bar bar-nav">
+            <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+                    <span class="icon icon-left-nav pull-left"></span>
+                    <img class="vertical-center" src="assets/img/logo-mini.png"/>
+            </a>
+            <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
+                <div class="dropdown-rotulo">{{nombre_usuario}}</div>
+            </div>
+            <h1 class="title">Opciones</h1>
+        </header>
+
+        <style type="text/css">
+
+        .badge-turno{
+            font-size: 18px !important;
+            background: #ff4444 !important;
+            color: white !important;
+        }
+
+        .zona-btn-eliminar{
+            bottom: 80px;
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: 0 10px;
+        }
+
+        .bar-tab{
+            bottom: 0;
+            top: unset;
+            height: 80px;
+        }
+
+        .bar-tab .tab-item {
+            color: black;
+        }
+
+        .bar-tab .tab-item .icon~.tab-label {
+            font-size: 16px;
+        }
+
+        .bar-tab .tab-item-disabled{
+            color: gray;
+        }
+
+        .bar-tab .tab-item-disabled:active {
+            background-color: #dddddd;
+        }
+
+        .btn-left{
+            text-align: left;
+            padding: 15px 0 15px 10px;
+        }
+
+        </style>
+
+        <div class="content">
+            <div class="content-padded text-center">   
+                <h4>Fecha de Trabajo</h4>      
+                <h3 class="fecha">{{fecha_registro}}</h3> 
+                <!-- 
+                <div class="text-left">
+                    <b>Turno:</b>
+                    <select class="txt-turno">
+                        {{#turnos}}
+                            <option value="{{idturno}}">{{descripcion}}</option>
+                        {{/turnos}}
+                    </select>
+                </div>  
+                -->  
+                <hr>
+                <p>
+                    <button data-url="registro-asistencia" class="btn-left btnopcion btn btn-block btn-primary">ASISTENCIA
+                         <span class="badge badge-turno">{{registros_pendientes_envio}} / {{registros_totales}}</span>
+                    </button>
+                </p>
+                <p>
+                    <button data-url="listado-labores" class="btn-left btnopcion btn btn-block btn-appbase">TAREO
+                         <span class="badge badge-turno">{{registros_pendientes_tareo_envio}} / {{registros_tareo_totales}}</span>
+                    </button>
+                </p>
+            </div>  
+            <div class="zona-btn-eliminar">
+                <button class="btn btn-block btn-negative btn-sm btn-eliminardia">ELIMINAR DÍA</button>
+            </div> 
+
+            <div class="bar bar-tab">
+                    <a class="tab-item enviar-datos" href="javascript:;">
+                        <span class="icon icon-download" style="font-size:30px"></span>
+                        <span class="tab-label" style="font-size:20px">ENVIAR DATOS</span>
+                    </a>
+            </div>
+        </div>

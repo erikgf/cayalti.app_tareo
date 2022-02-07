@@ -1,0 +1,108 @@
+    	<header class="bar bar-nav">
+            <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+                    <span class="icon icon-left-nav pull-left"></span>
+                    <img class="vertical-center" src="assets/img/logo-mini.png"/>
+            </a>
+            <button type="button" class="btn btn-primary btnasignar btn-sm btn-nav pull-right">ASIGNAR</button>
+            <h1 class="title">Tareo</h1>
+        </header>
+
+        <style type="text/css">
+
+        .badge-turno{
+            padding: 7.5px 12px !important;
+            font-size: 18px !important;
+            background: #ff4444 !important;
+            color: white !important;
+        }
+
+        .bar-header-secondary{
+            height: initial;
+        }
+
+        .bar-header-secondary .table-view{
+            font-size: .85em;
+        }
+    
+        .table-view-cell{
+            padding: 10px;
+        }
+
+        .blk{
+            display: none;
+            padding-top: 1em;
+            overflow-y: scroll;
+        }
+
+        .blkactive{
+            display: block !important;
+        }
+
+        .lst {
+            font-size: .85em;
+        }
+
+        .cell-seleccionado{
+            background-color: #2771e8;
+            color: white;
+        }
+
+        </style>
+
+        <div class="bar bar-standard bar-header-secondary">	 
+            <ul class="table-view">
+                <li class="row-duo table-view-row bold">
+                    <div>{{fecha_registro}}</div>
+                    <div>{{turno}}</div>
+                </li>
+                <div class="row-duo table-view-row">
+                    <div> Campo: {{campo}} </div>
+                    <div> Tareo: {{tipo_tareo}} </div>
+                </div>
+            	<li class="table-view-cell">
+                    <b>Labor: {{labor}}</b>
+				</li>
+                {{#if_ tipo_tareo '==' 'JORNAL'}}
+                    {{#if_ idturno '==' '03'}}
+                    <div class="row-duo table-view-row">
+                        <div>
+                            <div class="row-duo table-view-row">
+                                <label style="font-size:.85em">H.Diurno</label>
+                                <input type="number" class="holo text-center txt-horas-diurno" value="0">
+                            </div>
+                        </div>
+                        <div> 
+                            <div class="row-duo table-view-row">
+                                <label style="font-size:.85em">H.Nocturno</label>
+                                <input type="number" class="holo text-center txt-horas-nocturno" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div class="row-duo table-view-row">
+                        <div> Número de Horas:</div>
+                        <div> <input type="number" class="holo text-center txt-horas" value="0"></div>
+                    </div>
+                    {{/if_}}
+                {{/if_}}
+            </ul>
+	    </div>
+
+    	<div class="content">
+    		<div class="content-padded">    
+             <div class="segmented-control">
+                  <a class="control-item active" id="tabasistencia" data-blk="asistencia">
+                    LISTA ASISTENCIA
+                  </a>
+                  <a class="control-item" id="tabasignacion" data-blk="asignacion">
+                    ASIGNACIÓN
+                  </a>
+                </div>
+                <div id="blkasistencia" class="blk blkactive"> 
+                    <ul class="lst lst-asistencia table-view"></ul>
+                </div>
+                <div id="blkasignacion" class="blk">
+                    <ul class="lst lst-asignaciones table-view"></ul>
+                </div>
+           </div>
+		</div>
