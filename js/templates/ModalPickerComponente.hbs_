@@ -1,0 +1,22 @@
+<div class="modal-new-content">
+	<div class="modal-new-header">
+		<h4 clasS="modal-new-header-title">{{title}}</h4>
+		<span class="modal-new-close">&times;</span>
+		<div>
+			<input type="search" placeholder="Buscar..."  class="modal-new-filter"/>
+		</div>
+	</div>
+	<div class="modal-new-body">
+  	<ul class="table-view" style="font-size: .9em;">
+  		{{#items}}
+  			<li data-codigo="{{codigo}}" class="table-view-cell">
+    		 	<a class="navigate-right">
+			      {{descripcion}}
+			    </a>
+		    </li>
+		   {{else}}
+			<p><i>No hay registros que mostrar.</i></p>
+  		{{/items}}
+  	</ul>
+	</div>
+</div>

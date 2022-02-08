@@ -204,12 +204,14 @@
 	    	<div class="content-padded">
 	    		<h6 class="text-left">REGISTRO DE LABOR</h6>
 		    	<form>
-		    	  <select class="campos">
-				  </select>
-				  <select class="actividades">
-				  </select>
-				  <select class="labores">
-				  </select>
+		    	  <input type="text" readonly class="campos" placeholder="Seleccionar campo"/>
+		    	  <input type="text" readonly class="actividades" placeholder="Seleccionar actividades"/>
+		    	  <input type="text" readonly class="labores"/>
+		    	  <!--
+		    	  <select class="campos"></select>
+		    	  <select class="actividades"></select>
+		    	  <select class="labores"></select>
+					-->
 				  <select class="turnos">
 				  </select>
 				  <select class="tipotareo">
@@ -583,7 +585,6 @@
       <div class="card" style="padding: 16px;">
         <form>
               <select required id="txt-seleccionar-empresa">
-                <option value="">Seleccionar Empresa</option>
                 <option value="001">CAYALTI</option>
                 <option value="002">YARAMBAMBA</option>
               </select> 
@@ -662,22 +663,40 @@
             padding: 15px 0 15px 10px;
         }
 
+        .toggle.active:before {
+            content: "SI" !important;
+        }
+
+        .toggle:before {
+            content: "NO" !important;
+        }
+
+
+        .toggle .toggle-handle {
+            background-color: #ff4444;
+            border: 1px solid #f32b2b;
+        }
+
+        .toggle.active .toggle-handle {
+            background-color: #5cb85c;
+            border-color: #5cb85c;
+        }
+
         </style>
 
         <div class="content">
             <div class="content-padded text-center">   
                 <h4>Fecha de Trabajo</h4>      
                 <h3 class="fecha">{{fecha_registro}}</h3> 
-                <!-- 
-                <div class="text-left">
-                    <b>Turno:</b>
-                    <select class="txt-turno">
-                        {{#turnos}}
-                            <option value="{{idturno}}">{{descripcion}}</option>
-                        {{/turnos}}
-                    </select>
-                </div>  
-                -->  
+                <ul class="table-view">
+                      <li class="table-view-cell text-left">
+                        TRABAJAR CON GPS
+                        <div class="txt-trabajargps toggle {{#if_ is_gps_activated '==' 'true'}}active{{/if_}}">
+                          <div class="toggle-handle"></div>
+                        </div>
+                      </li>
+                </ul>
+                
                 <hr>
                 <p>
                     <button data-url="registro-asistencia" class="btn-left btnopcion btn btn-block btn-primary">ASISTENCIA

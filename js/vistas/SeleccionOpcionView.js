@@ -19,7 +19,8 @@ var SeleccionOpcionView = function (fecha_dia, servicio_frm, servicio_web, cache
 
     this.setEventos = function(){
      	this.$el.on("click",".btnopcion", this.irOpcion);        
-        this.$el.on("click",".enviar-datos", this.procesarEnviarDatos);              
+        this.$el.on("click",".enviar-datos", this.procesarEnviarDatos); 
+        this.$el.on("click", ".txt-trabajargps", this.toggleGPS);    
 
      };
 
@@ -43,8 +44,15 @@ var SeleccionOpcionView = function (fecha_dia, servicio_frm, servicio_web, cache
                 fechaRegistro = formateoFecha(getHoy());
             }
 
+            var isGPSActivated = VARS.GET_ISGPSACTIVATED();
+            if (isGPSActivated === null){
+                isGPSActivated = true;
+                localStorage.setItem(VARS.NOMBRE_STORAGE+"_GPS", isGPSActivated);
+            }
+
             self.$el.html(self.template({
                 imagen_icon: VARS.GET_ICON(),
+                is_gps_activated : isGPSActivated,
                 nombre_usuario: usuario.nombre_usuario,
             	fecha_registro: fechaRegistro,
                 fecha_registro_raw : fecha_dia,
@@ -341,6 +349,16 @@ var SeleccionOpcionView = function (fecha_dia, servicio_frm, servicio_web, cache
           .fail(UIFail);
     };
 
+    this.toggleGPS = function(){
+        var isActive = this.classList.contains("active");
+        if (isActive){
+            this.classList.remove("active");    
+        } else {
+            this.classList.add("active");
+        }
+
+        localStorage.setItem(VARS.NOMBRE_STORAGE+"_GPS", !isActive);
+    };
 
     this.destroy = function(){
         $fecha = null;

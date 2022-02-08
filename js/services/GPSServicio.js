@@ -32,7 +32,8 @@ var GPSServicio = function() {
     };
 
     this.isCached = function(){
-    	if (_tiempoUltimoLL == null){
+        console.log(_tiempoUltimoLL);
+    	if (_tiempoUltimoLL == null || (_tiempoUltimoLL.latitud == "-1" && _tiempoUltimoLL.longitud == "-1") ){
     		return false;
     	}
 
@@ -67,7 +68,6 @@ var GPSServicio = function() {
     };
 
     this.stop = function(){
-        console.log("stop : "+_WATCHERID);
     	clearTimeout(_WATCHERID);
     	_WATCHERID = -1;
     };

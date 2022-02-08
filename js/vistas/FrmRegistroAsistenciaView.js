@@ -17,6 +17,8 @@ var FrmRegistroAsistenciaView = function (servicio_frm, cache, data_usuario, fec
         getHora = _getHora,
         armarHora = _armarHora;
 
+    var isGPSActivated = VARS.GET_ISGPSACTIVATED() == "true";
+
     this.initialize = function () {
         this.$el = $('<div/>');        ;
         listaAsistenciaListView = new ListaAsistenciaListView(this);
@@ -26,7 +28,9 @@ var FrmRegistroAsistenciaView = function (servicio_frm, cache, data_usuario, fec
         ACTUAL_PAGE = this;
         self = this;
 
-        checkGPSService();
+        if (isGPSActivated){
+            checkGPSService();    
+        }
     };
  
     this.render = function() {
@@ -158,7 +162,7 @@ var FrmRegistroAsistenciaView = function (servicio_frm, cache, data_usuario, fec
                 }
 
                 if (objBuscado.existe_usuario > 0){
-                    var tmpLL = servicio_gps.getLL();
+                    var tmpLL = isGPSActivated ? servicio_gps.getLL() : {latitud: "-1", longitud: "-1"};
                     var objR = {
                                 dni_personal : numeroDNI,
                                 fecha_dia : fecha_dia,
@@ -297,7 +301,10 @@ var FrmRegistroAsistenciaView = function (servicio_frm, cache, data_usuario, fec
             modalMensaje = null;
         }
 
-        servicio_gps.stop();
+        if (isGPSActivated){
+            servicio_gps.stop();    
+        }
+        
         this.$el = null;
     };
 

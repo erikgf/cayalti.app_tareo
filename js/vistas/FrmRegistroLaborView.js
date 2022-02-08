@@ -11,8 +11,12 @@ var FrmRegistroLaborView = function (servicio_frm, cache, usuario, fecha_dia, id
         formateoFecha = _formateoFecha,
 		rs2Array = resultSetToArray;
 
+    var objModalPicker;
+    var DATA_STORE = {campos: [], actividades: [], turnos : [], labores: []};
+
 	this.initialize = function () {
         this.$el = $('<div/>');
+        objModalPicker = new ModalPickerComponente();
 
         if (ACTUAL_PAGE != null && (typeof ACTUAL_PAGE.destroy == "function")){
             ACTUAL_PAGE.destroy();
@@ -49,15 +53,47 @@ var FrmRegistroLaborView = function (servicio_frm, cache, usuario, fecha_dia, id
         $dom = null;
     };
 
-    var _changeActividad = function(e){
-            e.preventDefault();
-            var valor = this.value;
-            self.consultarUILabores(valor);
-        },
-        _clickGuardar = function(e){
-            e.preventDefault();
-            self.guardar();
-        };
+    var _clickGuardar = function(e){
+        e.preventDefault();
+        self.guardar();
+    };
+
+    var _activateCampo = function(e){
+        e.preventDefault();
+        objModalPicker.render({
+            title: "Seleccionar CAMPO",
+            items: DATA_STORE.campos,
+            $input: $(this)
+        });
+    };
+
+    var _activateActividad = function(e){
+        e.preventDefault();
+        objModalPicker.render({
+            title: "Seleccionar ACTIVIDAD",
+            items: DATA_STORE.actividades,
+            $input: $(this),
+            activateCallBack : true,
+            callback: function(data){
+                $labores.val("");
+                $labores.data("codigo","");
+                self.consultarUILabores(data.codigo , "");
+            }
+        });
+    };
+
+    var _activateLabor = function(e){
+        e.preventDefault();
+        if (!$actividades.data("codigo")){
+            return;
+        }
+
+        objModalPicker.render({
+            title: "Seleccionar LABOR",
+            items: DATA_STORE.labores,
+            $input: $(this)
+        })
+    };
 
     var UIFail = function (firstFail, name) {
             console.log('Fail for: ' + name);
@@ -78,7 +114,6 @@ var FrmRegistroLaborView = function (servicio_frm, cache, usuario, fecha_dia, id
             $btnguardar.attr("disabled",false);    
         }
 
-
         if ($bloqueMensaje){
             $bloqueMensaje.empty();    
             if (tipoMensaje == undefined){
@@ -90,8 +125,12 @@ var FrmRegistroLaborView = function (servicio_frm, cache, usuario, fecha_dia, id
    };  
 
     this.setEventos = function(){
-        $actividades.on("change", _changeActividad);
+        //$actividades.on("change", _changeActividad);
         $btnguardar.on("click", _clickGuardar);
+
+        $campos.on("click", _activateCampo);
+        $actividades.on("click", _activateActividad);
+        $labores.on("click", _activateLabor);
     };
 
     this.consultarUI = function(){
@@ -113,17 +152,20 @@ var FrmRegistroLaborView = function (servicio_frm, cache, usuario, fecha_dia, id
                     UIActividades  = rs2Array(res.UIActividades.rows),
                     UICampos  = rs2Array(res.UICampos.rows),
                     UITurnos  = rs2Array(res.UITurnos.rows);
-                
-                $turnos.html(templateCombo(UITurnos, "turnos"));
-                $actividades.html(templateCombo(UIActividades, "actividad"));
-                $campos.html(templateCombo(UICampos, "campo"));
-                $labores.html(templateCombo([], "labor"));
 
+                DATA_STORE.campos = UICampos;
+                DATA_STORE.actividades = UIActividades;
+                DATA_STORE.labores = [];
+
+                $turnos.html(templateCombo(UITurnos, "turnos"));
+                //$actividades.html(templateCombo(UIActividades, "actividad"));
+               // $campos.html(templateCombo(UICampos, "campo"));
+               // $labores.html(templateCombo([], "labor"));
                 if (id_registro_labor_edicion != ""){
                     var UIObtenerRegistroLabor = res.UIObtenerRegistroLabor.rows[0];
                     $turnos.val(UIObtenerRegistroLabor.idturno);
-                    $actividades.val(UIObtenerRegistroLabor.idactividad);
-                    $campos.val(UIObtenerRegistroLabor.idcampo);
+                    //$actividades.val(UIObtenerRegistroLabor.idactividad);
+                    //$campos.val(UIObtenerRegistroLabor.idcampo);
                     $tipotareo.val(UIObtenerRegistroLabor.idtipotareo);
 
                     self.consultarUILabores(UIObtenerRegistroLabor.idactividad, UIObtenerRegistroLabor.idlabor);
@@ -138,8 +180,9 @@ var FrmRegistroLaborView = function (servicio_frm, cache, usuario, fecha_dia, id
         /*Función que manda el código de cultivo y devuele hora E,S y descripcion.*/
         var reqObj;
 
-        if (idActividad == ""){
-            $labores.html(templateCombo([], "labor"));
+        if (idActividad === ""){
+            $labores.attr("placeholder", "");            
+            //$labores.html(templateCombo([], "labor"));
             return;
         }
 
@@ -150,10 +193,17 @@ var FrmRegistroLaborView = function (servicio_frm, cache, usuario, fecha_dia, id
         $.whenAll(reqObj)
           .done(function(res){
                 var UILabores  = rs2Array(res.UILabores.rows);
-                $labores.html(templateCombo(UILabores, "labor"));
+                DATA_STORE.labores = UILabores;+
+                $labores.attr("placeholder", "Seleccionar labor");
+                //$labores.html(templateCombo(UILabores, "labor"));
 
                 if (idLaborSeleccionada != ""){
-                    $labores.val(idLaborSeleccionada);
+                    var laborSeleccionada= DATA_STORE.labores.find(function(el){
+                        return el.codigo == idLaborSeleccionada;
+                    });
+                    $labores.data("codigo", laborSeleccionada.codigo);
+                    $labores.val(laborSeleccionada.descripcion);
+                    //$labores.val(idLaborSeleccionada);
                 }
             })
           .fail(UIFail);
@@ -172,8 +222,8 @@ var FrmRegistroLaborView = function (servicio_frm, cache, usuario, fecha_dia, id
 
     this.guardar = function(numeroDNI){     
         var self = this, 
-            idcampo = $campos.val(),
-            idlabor = $labores.val(),
+            idcampo = $campos.data("codigo");
+            idlabor = $labores.data("codigo");
             idtipotareo = $tipotareo.val(),
             idturno = $turnos.val();
 
@@ -184,13 +234,13 @@ var FrmRegistroLaborView = function (servicio_frm, cache, usuario, fecha_dia, id
             return;
         }
 
-        if (idlabor == ""){
+        if (idlabor === undefined || idlabor == ""){
             imprimirAlerta("Debe seleccionar una labor", "bg-rojo");
             return;
         }
 
 
-        if (idcampo == ""){
+        if (idcampo === undefined || idcampo == ""){
             imprimirAlerta("Debe seleccionar un campo", "bg-rojo");
             return;
         }
@@ -215,8 +265,6 @@ var FrmRegistroLaborView = function (servicio_frm, cache, usuario, fecha_dia, id
                 id : id_registro_labor_edicion
             };
 
-        console.log(objRegistro);
- 
         var objRQ = {
             verificarLaborExiste : servicio_frm.verificarLaborExiste(objRegistro)
         };
@@ -261,8 +309,14 @@ var FrmRegistroLaborView = function (servicio_frm, cache, usuario, fecha_dia, id
     };
 
     this.destroy = function(){
-        $actividades.off("change", _changeActividad);
+        $actividades.off("click", _activateActividad);
+        $campos.off("click", _activateCampo);
+        $labores.off("click", _activateLabor);
         $btnguardar.off("click", _clickGuardar);
+
+        if (objModalPicker){
+            objModalPicker.destroy();
+        }
 
         $labores = null;
         $campos = null;

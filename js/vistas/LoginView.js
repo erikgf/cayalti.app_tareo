@@ -18,6 +18,11 @@ var LoginView = function(servicio, servicio_web, cache) {
                   return;
               }
 
+              var empresaSincronizada = localStorage.getItem(VARS.NOMBRE_STORAGE+"_EMPRESASINCRONIZADA");
+              if (empresaSincronizada == $("#txt-seleccionar-empresa").val() ){
+                return;
+              }
+
               confirmar("Se realizará una sincronización automática, esta seguro de continuar? Si hay datos no enviados, serán eliminados.", 
                 function(){
                   self.verificarSincronizacionUltimaAuto();  
@@ -38,6 +43,7 @@ var LoginView = function(servicio, servicio_web, cache) {
 
      this.render = function() {
          this.$el.html(this.template({nombre_app: VARS.NOMBRE_APP}));
+         $("#txt-seleccionar-empresa").val(localStorage.getItem(VARS.NOMBRE_STORAGE+"_EMPRESA"));
          return this;
      };
 

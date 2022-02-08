@@ -21,6 +21,7 @@ var FrmRegistroTareoView = function (servicio_frm, cache, data_usuario, params, 
         armarHora = _armarHora;
 
     var MAX_HORAS_DIA = 14;
+    var isGPSActivated = VARS.GET_ISGPSACTIVATED() == "true";
 
     this.initialize = function () {
         this.$el = $('<div/>');
@@ -33,9 +34,12 @@ var FrmRegistroTareoView = function (servicio_frm, cache, data_usuario, params, 
             ACTUAL_PAGE.destroy();
         }
         ACTUAL_PAGE = this;
-        self = this;
+        self = this;    
 
-        checkGPSService();
+        if (isGPSActivated){
+            checkGPSService();    
+        }
+        
     };
 
     this.getIdTurno = function(){
@@ -93,6 +97,7 @@ var FrmRegistroTareoView = function (servicio_frm, cache, data_usuario, params, 
     };
 
     var checkGPSService = function(){
+        console.log("checking");
         var fnGPSOK = function(posicion){
             if (modalMensaje){
                 modalMensaje.esconder();
@@ -130,7 +135,6 @@ var FrmRegistroTareoView = function (servicio_frm, cache, data_usuario, params, 
 
         $.whenAll( reqObj )
                 .done(function(res){
-                    console.log(res);
                     var uiCabecera = res.UICabeceraTareo.rows.item(0);
                     
                     idturno = uiCabecera.idturno;
@@ -296,8 +300,10 @@ var FrmRegistroTareoView = function (servicio_frm, cache, data_usuario, params, 
         }
 
 
+        var objLatitudLongitud = isGPSActivated ? servicio_gps.getLL() : {latitud: "-1", longitud: "-1"};
+
         var reqObj = {
-            UIRegistrarLaborPersonal : servicio_frm.registrarLaborPersonal(fecha_dia, idturno, idlabor, idcampo, arregloDniPersonal, numDiurno, numNocturno, servicio_gps.getLL())
+            UIRegistrarLaborPersonal : servicio_frm.registrarLaborPersonal(fecha_dia, idturno, idlabor, idcampo, arregloDniPersonal, numDiurno, numNocturno, objLatitudLongitud)
         };
 
         $.whenAll( reqObj )
@@ -468,7 +474,10 @@ var FrmRegistroTareoView = function (servicio_frm, cache, data_usuario, params, 
             modalMensaje = null;
         }
 
-        servicio_gps.stop();
+        if (isGPSActivated){
+            servicio_gps.stop();    
+        }
+        
 
         this.$el = null;
     };
