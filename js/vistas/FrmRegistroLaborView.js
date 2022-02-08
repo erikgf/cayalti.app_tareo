@@ -164,6 +164,19 @@ var FrmRegistroLaborView = function (servicio_frm, cache, usuario, fecha_dia, id
                 if (id_registro_labor_edicion != ""){
                     var UIObtenerRegistroLabor = res.UIObtenerRegistroLabor.rows[0];
                     $turnos.val(UIObtenerRegistroLabor.idturno);
+
+                    var actividadSeleccionada = DATA_STORE.actividades.find(function(el){
+                        return el.codigo == UIObtenerRegistroLabor.idactividad;
+                    });
+                    $actividades.val(actividadSeleccionada.descripcion);
+                    $actividades.data("codigo", actividadSeleccionada.codigo);
+
+                    var campoSeleccionado = DATA_STORE.campos.find(function(el){
+                        return el.codigo == UIObtenerRegistroLabor.idcampo;
+                    });
+                    $campos.val(campoSeleccionado.descripcion);
+                    $campos.data("codigo", campoSeleccionado.codigo);
+
                     //$actividades.val(UIObtenerRegistroLabor.idactividad);
                     //$campos.val(UIObtenerRegistroLabor.idcampo);
                     $tipotareo.val(UIObtenerRegistroLabor.idtipotareo);
