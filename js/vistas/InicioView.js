@@ -1,5 +1,4 @@
-var InicioView = function (data_usuario, servicio_web, servicio) {
-
+var InicioView = function () {
 	var self = this,
 		$lista_dias,
 		objSincronizador,
@@ -7,8 +6,9 @@ var InicioView = function (data_usuario, servicio_web, servicio) {
 		TOTAL_REGISTOS_ENVIO = 0,
 		TOTAL_REGISTROS_PENDIENTES = 0,
 		TOTAL_REGISTROS_PENDIENTES_PROPIOS = 0,
-		getHoy = _getHoy,
 		rs2Array = resultSetToArray;
+
+	var objCacheRegistroDia = new CacheComponente("_fecha");
 
 	this.initialize = function () {
         this.$el = $('<div/>');       
@@ -20,30 +20,29 @@ var InicioView = function (data_usuario, servicio_web, servicio) {
     };
 
     this.setEventos = function(){
-
     	this.$el.on("click","#btn-actualizar", this.actualizarDatos);
     	this.$el.on("click",".lista-dias li", this.irSeleccionarCultivo);
     	this.$el.on("click","#btn-menu", this.mostrarMenu);
     	this.$el.on("click",this.cancelarMenu);
 
-    	this.$el.on("click",".btn-limpiardias", this.limpiarDiasAnteriores);  
+    	this.$el.on("click",".btn-limpiardias", this.eliminarDiasAnteriores);  
      };
 
     this.render = function() {	    
-	    var objRender = data_usuario;
+	    var objRender = DATA_NAV.usuario;
 	    objRender.nombre_app = VARS.NOMBRE_APP;
 	    objRender.imagen_icon = VARS.GET_ICON();
 
+	    
 	    this.$el.html(self.template(objRender));
 		$lista_dias = self.$el.find(".lista-dias");
-	    this.consultarDiasRegistro();
+	  	this.consultarDiasRegistro();
 	    return this;
 	};
 
 	this.actualizarDatos = function(){
-		objSincronizador = new SincronizadorClase(servicio, servicio_web, 
-                    ["Usuarios", "Actividades", "Campos","Labores", "Personal","Turnos"]);
-        objSincronizador.actualizarDatos();
+		objSincronizador = new Sincronizador(["Usuario", "Actividad", "Campo","Labor", "Personal","Turno"]);
+        objSincronizador.sincronizarDatos();
 	};
 
 	var UIFail = function (firstFail, name) {
@@ -54,32 +53,38 @@ var InicioView = function (data_usuario, servicio_web, servicio) {
             alert("Días anteriores limpiados.");
         };
 
-	this.consultarDiasRegistro = function(){		
-		var self = this,
-			diaHoy = getHoy();
 
-		var reqObj = {
-			  consultar_dias_registro: servicio.consultarDiasRegistro()
-           	},
-            self = this;
+    this.consultarDiasRegistro = function(){
+        var self = this; 
+        new RegistroDia().getRegistroDias()
+            .done(function(resultado){
+                var fechaTrabajoCache = objCacheRegistroDia.get();
+            	var fnPreprocesar = function(){
+            		var nuevoResultado = [];
+                    for (var i = resultado.length - 1; i >= 0; i--){
+            			var o = resultado[i];
+            			nuevoResultado.push({
+            				fecha_dia_raw: o.fecha_dia,
+                            opcion_seleccionada: o.fecha_dia === fechaTrabajoCache,
+            				fecha_dia : _formateoFecha(o.fecha_dia)
+            			});
+            		};
+            		return nuevoResultado;
+            	};
 
-        $.whenAll(reqObj)
-          .done(function (res) {
-          	var dias = rs2Array(res.consultar_dias_registro.rows)
-     			//,rowConsultarExistencia = res.consultar_existencia_dia.rows.item(0);
-     		/*
-     		if (rowConsultarExistencia.existencia == 0){
-     			self.existenTurnosValidos(dias, diaHoy);
-     			return;
-            }*/
+            	var listaDias = fnPreprocesar();
+            	if (!listaDias.length){
+            		//No hay registros de días. Hora de crear uno.
+                    self.verificarExisteFecha();
+                    return;
+            	}
 
-     		$lista_dias.html(self.templateDias(dias));
-          })
-          .fail(function (firstFail, name) {
-            console.log('Fail for: ' + name);
-            console.error(firstFail);
-          });
-	};
+     			$lista_dias.html(TEMPLATES.ListaDiasTrabajoListView(listaDias));
+            })
+            .fail(function(error){
+                console.error(error);
+            });
+    };
 
 	this.mostrarMenu = function(e){
 		e.preventDefault();
@@ -101,36 +106,8 @@ var InicioView = function (data_usuario, servicio_web, servicio) {
 		}
 	};
 
-	this.templateDias = function(dataDias){
-		var html = '',
-			len = dataDias.length;
-		/*
-		if (len <= 0){
-			return '<li class="table-view-cell"><a> Sin días registrados</a></li>';
-		}
-		*/
-		for (var i = len - 1; i >= 0; i--) {
-			var obj = dataDias[i];
-			html += '<li data-id="'+obj.fecha_dia_raw+'" class="table-view-cell '+(obj.hoy == 1 ? 'btn-appbase' : 'btn-gray')+'"><a> DÍA: '+obj.fecha_dia+'</a> </li>';
-		};
-
-		return html;
-	};
-
-	var formateoFecha = function(fechaFormateoYanqui){
-        var arrTemp;
-
-        if (fechaFormateoYanqui == "" || fechaFormateoYanqui == null){
-            return "";
-        }
-
-        arrTemp = fechaFormateoYanqui.split("-");
-        return arrTemp[2]+"-"+arrTemp[1]+"-"+arrTemp[0];
-    };
-
 	this.irSeleccionarCultivo = function(){
-
-		if (data_usuario.usuario == "admin"){
+		if (DATA_NAV.usuario == "admin"){
 			alert("Debe acceder con un USUARIO válido.");
 			return;
 		}
@@ -138,23 +115,71 @@ var InicioView = function (data_usuario, servicio_web, servicio) {
 		router.load("seleccion-opcion/"+this.dataset.id);
 	};
 
-	this.limpiarDiasAnteriores = function(e){
+	this.eliminarDiasAnteriores = function(e){
         e.preventDefault();
-            var fnConfirmar = function(){
-                var reqObj = {
-                      limpiarDiasAnterioresRegistroDia: servicio.limpiarDiasAnterioresRegistroDia(),
-                      limpiarDiasAnterioresRegistroDiaPersonal : servicio.limpiarDiasAnterioresRegistroDiaPersonal(),
-                      limpiarDiasAnterioresRegistroLabor : servicio.limpiarDiasAnterioresRegistroLabor(),
-                      limpiarDiasAnterioresRegistroLaborPersonal : servicio.limpiarDiasAnterioresRegistroLaborPersonal()
-                    };
+        var hoy = new Date(),
+            hastaDiasAnteriores = new Date(hoy);
+        
+        hastaDiasAnteriores.setDate(hastaDiasAnteriores.getDate() - 2);
+        hastaDiasAnteriores = _getHoy(hastaDiasAnteriores);
 
-                $.whenAll(reqObj)
-                  .done(limpiarDiasDone)
-                  .fail(UIFail);
-
-                reqObj = null;
+        var fnConfirmar = function(){
+            var reqObj = {
+                  eliminarRegistroDiaHasta: new RegistroDia({fecha_dia: hastaDiasAnteriores}).eliminarRegistroDiaHasta(),
+                 // eliminarRegistroDiaPersonalHasta : new RegistroDiaPersonal({fecha_dia: hastaDiasAnteriores}).eliminarRegistroDiaPersonalHasta(),
+                 // eliminarRegistroLaborHasta : new RegistroLabor({fecha_dia: hastaDiasAnteriores}).eliminarRegistroLaborHasta(),
+                 // eliminarRegistroLaborPersonalHasta : new RegistroLaborPersonal({fecha_dia: hastaDiasAnteriores}).eliminarRegistroLaborPersonalHasta()
             };
-        confirmar("¿Desea limpias días anteriores? Esta acción es irreversible", fnConfirmar);        
+
+            $.whenAll(reqObj)
+              .done(function(resultado){
+                    var resEliminarFechaDiaHasta = resultado.eliminarRegistroDiaHasta;
+                    if (resEliminarFechaDiaHasta > 0){
+                        self.consultarDiasRegistro();
+                        return;
+                    }
+                    alert("No hay registros que eliminar.");
+                })
+                .fail(function(error){
+                    console.error(error);
+                });
+
+            reqObj = null;
+        };
+        confirmar("¿Desea limpiar días anteriores? Se obviarán los dos últimos días calendario. Esta acción es irreversible.", fnConfirmar);        
+    };
+
+    this.verificarExisteFecha = function(){
+        var hoy = _getHoy();
+        var objRegistroDia = new RegistroDia({fecha_dia: hoy});
+
+        objRegistroDia.verificarExisteFecha()
+            .done(function(resultado){
+                var existe = resultado.length > 0;
+                if (!existe){
+                    self.agregarNuevoDia(hoy);
+                    return;
+                }
+            })
+            .fail(function(error){
+                console.error(error);
+            });
+    };
+
+    this.agregarNuevoDia = function(fecha_dia){
+        var objRegistroDia = new RegistroDia({fecha_dia: fecha_dia});
+        objRegistroDia.addNuevaFechaDia()
+            .done(function(resultado){
+                objCacheRegistroDia.set(fecha_dia);
+                $lista_dias.prepend(TEMPLATES.ListaDiasTrabajoListView([{
+                    fecha_dia_raw : fecha_dia,
+                    opcion_seleccionada : true,
+                    fecha_dia : _formateoFecha(fecha_dia)
+                }]));
+            })
+            .fail(function(error){
+                console.error(error);
+            });
     };
 
 	this.destroy = function(){
@@ -169,6 +194,7 @@ var InicioView = function (data_usuario, servicio_web, servicio) {
     	this.$el.off("click",".lista-dias li", this.irSeleccionarCultivo);
     	this.$el.off("click","#btn-menu", this.mostrarMenu);
     	this.$el.off("click", this.cancelarMenu);
+        this.$el.off("click",".btn-limpiardias", this.eliminarDiasAnteriores);  
 
 		this.$el = null;
 	};

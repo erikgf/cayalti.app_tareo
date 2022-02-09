@@ -17,8 +17,10 @@
   ACTUAL_PAGE = null,
   router;
 
-var DATA_NAV, DATA_NAV_JSON, 
-    FECHA_TRABAJO; /*VARIABLE SUPER IMPORTANTE QUE NOS DICTA SI ES QUE HAY O NO DIA ACTIVO EN EL SISTEMA.*/
+var DB_HANDLER;
+var SERVICIO_GPS;
+var DATA_NAV, DATA_NAV_JSON; /*VARIABLE SUPER IMPORTANTE QUE NOS DICTA SI ES QUE HAY O NO DIA ACTIVO EN EL SISTEMA.*/
+var TEMPLATES = {};
 
 var onDeviceReady = function () {   
     /* ---------------------------------- Local Variables ---------------------------------- */
@@ -33,71 +35,27 @@ var onDeviceReady = function () {
       };
     }
 
-    FECHA_TRABAJO = localStorage.getItem(VARS.NOMBRE_STORAGE_FECHA_TRABAJO);
+    var slider = new PageSlider($('body'));
+    var compilar = function(){
+      esAppMovil = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+      return esAppMovil ?  $.get("template.master.hbs") : $.get("template.compiler.php");
+    };
 
-    var VERSION = "1",
-        slider = new PageSlider($('body')),
-        //blockUI = new BlockUI(),
-        db = new DBHandlerClase(VERSION),
-        servicio = new AgriServicio(),
+    /*
+
+    var servicio = new AgriServicio(),
         servicio_web = new AgriServicioWeb(),
-        servicio_frm = new AgriServicioFrm(),
-        servicio_gps = new GPSServicio();
-    
-    servicio_gps.initialize();
-    servicio_web.initialize();
-    servicio_frm.initialize(db);
+        servicio_frm = new AgriServicioFrm();
+    */
+    SERVICIO_GPS = new GPSServicio();
 
+        /*
+    servicio_frm.initialize(db);
+    */
+/*
     servicio.initialize(db).then(function (htmlScriptTemplates) {
       try{
         procesarTemplates(htmlScriptTemplates);
-
-          router.addRoute('', function() {
-              slider.slidePage(new LoginView(servicio, servicio_web).render().$el);
-          });
-
-          router.addRoute('inicio', function() {
-            if (DATA_NAV.acceso){
-                slider.slidePage(new InicioView(DATA_NAV.usuario,servicio_web, servicio).render().$el);
-            }
-          });
-
-          router.addRoute('seleccion-opcion/:fechadia', function(fecha_dia) {
-            if (DATA_NAV.acceso){
-                slider.slidePage(new SeleccionOpcionView(fecha_dia, servicio_frm, servicio_web, CACHE_VIEW.seleccion_opcion,DATA_NAV.usuario).render().$el);
-            }
-          });
-
-          router.addRoute('registro-asistencia/:fechadia', function(fecha_dia) {
-            if (DATA_NAV.acceso){
-                slider.slidePage(new FrmRegistroAsistenciaView(servicio_frm, CACHE_VIEW.registro_asistencia, DATA_NAV.usuario,fecha_dia, servicio_gps).render().$el);
-            }
-          });
-
-          router.addRoute('listado-labores/:fechadia', function(fecha_dia) {
-            if (DATA_NAV.acceso){
-                //CACHE_VIEW.seleccion_opcion.idturno = idturno;
-                slider.slidePage(new ListadoLaboresView(fecha_dia,  servicio_frm, CACHE_VIEW.listado_labores,DATA_NAV.usuario).render().$el);
-            }
-          });
-
-          router.addRoute('registro-labor/:fechadia/:idregistrolaboredicion', function(fecha_dia, idregistrolaboredicion) {
-            if (DATA_NAV.acceso){
-                slider.slidePage(new FrmRegistroLaborView(servicio_frm, CACHE_VIEW.registro_labor, DATA_NAV.usuario,fecha_dia, idregistrolaboredicion).render().$el);
-            }
-          });
-
-          router.addRoute('registro-tareo/:fechadia/:idlabor/:idcampo/:idturno', function(fecha_dia, idlabor,idcampo,idturno) {
-            if (DATA_NAV.acceso){
-                slider.slidePage(new FrmRegistroTareoView(servicio_frm, CACHE_VIEW.registro_tareo, DATA_NAV.usuario, {
-                                      fecha_dia : fecha_dia,
-                                      idlabor: idlabor,
-                                      idcampo : idcampo,
-                                      idturno : idturno
-                                  }, servicio_gps).render().$el);
-            }
-          });
-
 
         if (DATA_NAV.acceso){
           router.load("inicio");
@@ -108,23 +66,97 @@ var onDeviceReady = function () {
         router.start();
         
         checkgps();
-        //checkActualizar();
 
       }catch(e){
         console.error(e)
       };
     });
+    */
+
+
+    new BaseDatosLocal().then(function () {
+      compilar().then(function(htmlScriptTemplates){
+        try{
+          procesarTemplates(htmlScriptTemplates);
+
+          router.addRoute('', function() {
+              slider.slidePage(new LoginView().render().$el);
+          });
+
+          router.addRoute('inicio', function() {
+            if (DATA_NAV.acceso){
+                slider.slidePage(new InicioView().render().$el);
+            }
+          });
+
+          router.addRoute('seleccion-opcion/:fechadia', function(fecha_dia) {
+            if (DATA_NAV.acceso){
+                slider.slidePage(new SeleccionOpcionView({fecha_dia: fecha_dia}).render().$el);
+            }
+          });
+
+          router.addRoute('registro-asistencia/:fechadia', function(fecha_dia) {
+            if (DATA_NAV.acceso){
+                slider.slidePage(new FrmRegistroAsistenciaView({fecha_dia: fecha_dia}).render().$el);
+            }
+          });
+
+          router.addRoute('listado-labores/:fechadia', function(fecha_dia) {
+            if (DATA_NAV.acceso){
+                //CACHE_VIEW.seleccion_opcion.idturno = idturno;
+                slider.slidePage(new ListadoLaboresView({fecha_dia, fecha_dia}).render().$el);
+            }
+          });
+
+          router.addRoute('registro-labor/:fechadia/:idregistrolaboredicion', function(fecha_dia, idregistrolaboredicion) {
+            if (DATA_NAV.acceso){
+                slider.slidePage(new FrmRegistroLaborView({
+                                    fecha_dia: fecha_dia,
+                                    idregistrolaboredicion: idregistrolaboredicion
+                                  }).render().$el);
+            }
+          });
+
+          router.addRoute('registro-tareo/:fechadia/:idlabor/:idcampo/:idturno', function(fecha_dia, idlabor,idcampo,idturno) {
+            if (DATA_NAV.acceso){
+                slider.slidePage(new FrmRegistroTareoView({
+                                      fecha_dia : fecha_dia,
+                                      idlabor: idlabor,
+                                      idcampo : idcampo,
+                                      idturno : idturno
+                                  }).render().$el);
+            }
+          });
+
+          if (DATA_NAV.acceso){
+            router.load("inicio");
+          } else {
+            router.load("");
+          }
+
+          router.start();
+          checkgps();
+          //checkActualizar();
+        }catch(e){
+          console.error(e)
+        };
+      });
+    });
 
     function procesarTemplates(htmlScriptTemplates){
         $("body").prepend(htmlScriptTemplates);
-
-
         var scripts = document.getElementsByTagName('script');
 
         for(var i = 0; i < scripts.length; i++) {
             var $el = scripts[i], id = $el.id;
             if ($el.type.toLowerCase() == "text/template"){
-                window[id.slice(0,-4)].prototype.template = Handlebars.compile(document.getElementById(id).innerHTML);
+                var pageName = id.slice(0,-4)
+                var page = window[pageName];
+                if (page){
+                  page.prototype.template = Handlebars.compile(document.getElementById(id).innerHTML);
+                } else {
+                  TEMPLATES[pageName] =  Handlebars.compile(document.getElementById(id).innerHTML);
+                }
             }
         }
     };
@@ -139,7 +171,7 @@ var onDeviceReady = function () {
     if ( app ) {
       document.addEventListener("deviceready", onDeviceReady, false);
     } else {
-      onDeviceReady();  // Web page
+      onDeviceReady();  // webapp
     } 
     setFX(app);
 }());
@@ -152,5 +184,4 @@ function cerrarSesion(){
   };
 
   location.href = "#";
- // router.load("inicio");
 };

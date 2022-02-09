@@ -1,13 +1,13 @@
-var SeleccionOpcionView = function (fecha_dia, servicio_frm, servicio_web, cache, usuario) {
+var SeleccionOpcionView = function ({ fecha_dia }) {
 	var self = this,
 		fechaOK = false,
         $content,
         $fecha,
         //$turno,
         $actualTab, $actualContainer,
-        modalMensaje,
-        getHoy = _getHoy,
-		rs2Array = resultSetToArray;
+        modalMensaje;
+
+    var objCacheComponente = new CacheComponente("_GPS");
 
 	this.initialize = function () {
         this.$el = $('<div/>');       
@@ -20,100 +20,66 @@ var SeleccionOpcionView = function (fecha_dia, servicio_frm, servicio_web, cache
     this.setEventos = function(){
      	this.$el.on("click",".btnopcion", this.irOpcion);        
         this.$el.on("click",".enviar-datos", this.procesarEnviarDatos); 
-        this.$el.on("click", ".txt-trabajargps", this.toggleGPS);    
-
-     };
+        this.$el.on("click", ".txt-trabajargps", this.toggleGPS);   
+        this.$el.on("click", ".btn-eliminardia", this.eliminarDia); 
+    };
 
     this.render = function() {
     	this.consultarUI();
 	    return this;
 	};
 
-	var UIDone = function (res) {
-            var //uiTurnos = rs2Array(res.UITurnos.rows),
-                uiRegistros = res.UIRegistros.rows.item(0),
-                uiRegistrosTareo = res.UIRegistrosTareo.rows.item(0),
-                fechaRegistroActiva = fecha_dia;   
-
-            if (fechaRegistroActiva != null && fechaRegistroActiva != ""){
-            	/*fechaOK*/
-            	fechaOK = true;
-            	fechaRegistro = formateoFecha(fecha_dia);
-            } else {
-            	fechaOK = false;
-                fechaRegistro = formateoFecha(getHoy());
-            }
-
-            var isGPSActivated = VARS.GET_ISGPSACTIVATED();
-            if (isGPSActivated === null){
-                isGPSActivated = true;
-                localStorage.setItem(VARS.NOMBRE_STORAGE+"_GPS", isGPSActivated);
-            }
-
-            self.$el.html(self.template({
-                imagen_icon: VARS.GET_ICON(),
-                is_gps_activated : isGPSActivated,
-                nombre_usuario: usuario.nombre_usuario,
-            	fecha_registro: fechaRegistro,
-                fecha_registro_raw : fecha_dia,
-                registros_pendientes_envio: uiRegistros.registros_pendientes_envio,
-                registros_totales : uiRegistros.registros_totales,
-                registros_pendientes_tareo_envio: uiRegistrosTareo.registros_pendientes_tareo_envio,
-                registros_tareo_totales : uiRegistrosTareo.registros_tareo_totales,
-                //turnos: uiTurnos
-            })); 
-
-            $content = self.$el.find(".content");
-            $fecha  = $content.find(".fecha");
-            //$turno  = $content.find(".txt-turno");
-
-            //$turno.val(cache.idturno);
-            
-            self.setEventos();
-        },
-        UIFail = function (firstFail, name) {
-            console.log('Fail for: ' + name);
-            console.error(firstFail);
-        },
-        eliminarDone = function (res) {
-            alert("Día eliminado.");
-            history.back();
-        };
-
 	this.consultarUI = function(){
-		/*consultamos cultivos (de este usuario*/
-		var reqObj = {
-              // UITurnos : servicio_frm.obtenerTurnos(),
-              UIRegistros: servicio_frm.obtenerRegistrosAsistenciaDia(fecha_dia),
-              UIRegistrosTareo: servicio_frm.obtenerRegistrosAsignacionesDiaTareo(fecha_dia)
+        var self = this; 
+        var reqObj = {
+                getRegistroDiasPersonal: new RegistroDiaPersonal({fecha_dia: fecha_dia}).getRegistrosDia(),
+                getRegistroLaborPersonal : new RegistroLaborPersonal({fecha_dia: fecha_dia}).getRegistrosDia(),
             };
 
         $.whenAll(reqObj)
-          .done(UIDone)
-          .fail(UIFail);
+          .done(function(resultado){
+                var registrosDiasPersonal = resultado.getRegistroDiasPersonal;
+                var registrosLaboresPersonal = resultado.getRegistroLaborPersonal;
+                var fechaRegistroActiva = fecha_dia;   
+
+                if (fechaRegistroActiva != null && fechaRegistroActiva != ""){
+                    /*fechaOK*/
+                    fechaOK = true;
+                    fechaRegistro = _formateoFecha(fecha_dia);
+                } else {
+                    fechaOK = false;
+                    fechaRegistro = _formateoFecha(_getHoy());
+                }
+
+                var isGPSActivated = VARS.GET_ISGPSACTIVATED();
+                if (isGPSActivated === null){
+                    isGPSActivated = true;
+                    objCacheComponente.set(isGPSActivated);
+                }
+
+
+                self.$el.html(self.template({
+                    imagen_icon: VARS.GET_ICON(),
+                    is_gps_activated : isGPSActivated,
+                    nombre_usuario: DATA_NAV.usuario.nombres_apellidos,
+                    fecha_registro: fechaRegistro,
+                    fecha_registro_raw : fecha_dia,
+                    registros_pendientes_envio: 0,
+                    registros_totales : registrosDiasPersonal.length,
+                    registros_pendientes_tareo_envio: 0,//getRegistroLaborPersonal.registros_pendientes_tareo_envio,
+                    registros_tareo_totales : registrosLaboresPersonal.length,
+                })); 
+
+                $content = self.$el.find(".content");
+                $fecha  = $content.find(".fecha");
+
+                self.setEventos();
+
+            })
+            .fail(_UIFail);
+
+        reqObj = null;
 	};
-
-	var getHoy = function(){
-		var d = new Date(),
-			anio = d.getYear()+1900,
-			mes = d.getMonth()+1,
-			dia = d.getDate();
-
-			mes = (mes >= 10)  ? mes : ('0'+mes);
-
-		return anio+"-"+mes+"-"+dia;
-	};
-
-    var formateoFecha = function(fechaFormateoYanqui){
-        var arrTemp;
-
-        if (fechaFormateoYanqui == "" || fechaFormateoYanqui == null){
-            return "";
-        }
-
-        arrTemp = fechaFormateoYanqui.split("-");
-        return arrTemp[2]+"-"+arrTemp[1]+"-"+arrTemp[0];
-    };
 
     this.irOpcion = function(e){
         e.preventDefault();
@@ -132,18 +98,28 @@ var SeleccionOpcionView = function (fecha_dia, servicio_frm, servicio_web, cache
 
     this.eliminarDia = function(e){
         e.preventDefault();
-            var fnConfirmar = function(){
-                var fechaTrabajo = fecha_dia,
-                    reqObj = {
-                      eliminarDia: servicio_frm.eliminarDia(fechaTrabajo, usuario.usuario)
-                    };
+        var fnConfirmar = function(){
 
-                $.whenAll(reqObj)
-                  .done(eliminarDone)
-                  .fail(UIFail);
-
-                fechaTrabajo = null;
+            var reqObj = {
+                 eliminarRegistroDia: new RegistroDia({fecha_dia: fecha_dia}).eliminarRegistroDia(),
+                 //eliminarRegistroDiaPersonal : new RegistroDiaPersonal({fecha_dia: fecha_dia}).eliminarRegistroDiaPersonal(),
+                 //eliminarRegistroLabor : new RegistroLabor({fecha_dia: fecha_dia}).eliminarRegistroLabor(),
+                 //eliminarRegistroLaborPersonal : new RegistroLaborPersonal({fecha_dia: fecha_dia}).eliminarRegistroLaborPersonal()
             };
+
+            $.whenAll(reqObj)
+              .done(function(resultado){
+                    var resEliminarRegistroDia = resultado.eliminarRegistroDia;
+                    if (resEliminarRegistroDia > 0){
+                        alert("Día eliminado.");
+                        history.back();
+                        return;
+                    }
+                })
+                .fail(_UIFail);
+
+            reqObj = null;
+        };
         confirmar("¿Desea eliminar el día de asistencia? Esta acción es irreversible", fnConfirmar);        
     };
 
@@ -195,7 +171,7 @@ var SeleccionOpcionView = function (fecha_dia, servicio_frm, servicio_web, cache
 
            enviarDatos(JSONAsistencia, JSONTareo);
           })
-          .fail(UIFail);
+          .fail(_UIFail);
     };
 
     var procesarDatosAsistencia = function(datos){
@@ -346,7 +322,7 @@ var SeleccionOpcionView = function (fecha_dia, servicio_frm, servicio_web, cache
             var marcarRegistros = parseInt(res.marcar_registros_asistencia.rowsAffected) + parseInt(res.marcar_registros_tareo.rowsAffected);
              alert(marcarRegistros+ " registros enviados.");
           })
-          .fail(UIFail);
+          .fail(_UIFail);
     };
 
     this.toggleGPS = function(){
@@ -357,7 +333,7 @@ var SeleccionOpcionView = function (fecha_dia, servicio_frm, servicio_web, cache
             this.classList.add("active");
         }
 
-        localStorage.setItem(VARS.NOMBRE_STORAGE+"_GPS", !isActive);
+        objCacheComponente.set(!isActive);
     };
 
     this.destroy = function(){
@@ -368,7 +344,9 @@ var SeleccionOpcionView = function (fecha_dia, servicio_frm, servicio_web, cache
         $actualTab = null;
 
         this.$el.off("click",".btnopcion", this.irOpcion);     
-        this.$el.off("click",".enviar-datos", this.procesarEnviarDatos);     
+        this.$el.off("click",".enviar-datos", this.procesarEnviarDatos);   
+        this.$el.off("click", ".txt-trabajargps", this.toggleGPS);  
+        this.$el.off("click", ".btn-eliminardia", this.eliminarDia);  
 
         this.$el = null;
     };

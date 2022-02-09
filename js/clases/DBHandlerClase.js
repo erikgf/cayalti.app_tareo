@@ -1,6 +1,57 @@
 var DBHandlerClase = function(version) {
     var DB_NOMBRE = "bd_labores_cayalti";
-    var _tables = [
+ 
+
+    this.initialize = function(_version) {
+        //url = serviceURL ? serviceURL : "http://localhost:5000/sessions";
+        try { 
+                if (!window.openDatabase) { 
+                  alert('Este dispositivo no soporta Base de Datos local.');
+                  return;
+                } 
+                
+                var self = this,
+                    shortName = DB_NOMBRE,
+                    version = _version == null  ?  1  : _version, //version actual
+                    displayName = 'BD Labores Cayalti',
+                    maxSize = 5*1024*1024, // in bytes 
+                    fnCheckVersion = function(actualVersion, arregloVersiones){
+                        var bol = false;
+
+                        for (var i = arregloVersiones.length - 1; i >= 0; i--) {
+                          var vers = arregloVersiones[i];
+                          bol = parseFloat(vers) == parseFloat(actualVersion) || bol;
+                          if (bol == true){
+                            return bol;
+                          }
+                        };
+
+                        return bol;
+                    };
+
+                this.mydb = openDatabase(shortName, "", displayName, maxSize);
+                this.mydb.version = 1;
+                console.log(this.mydb.version, version);
+                this.mydb.changeVersion(this.mydb.version, version, function(db){
+                      var viejaVersion = self.mydb.version,
+                          nuevaVersion = version;
+                      for (var i = viejaVersion + 1; i <= nuevaVersion; i++) {
+                        if (typeof self["upgradeVersion_"+i]  === "function"){
+                          self["upgradeVersion_"+i]();
+                        } else {
+                          console.error("Se está intentando ejecutar una actualización a version "+i+", pero no se encuentra la función actualizadora.");
+                        }
+                      };
+                });
+
+          } catch(e) { console.error(e); alert(e.message); }
+
+          return this;
+    };
+
+    this.upgradeVersion_1 = function(){
+        try {
+             var _tables = [
                    {  nombre: "usuario",
                       campos : [
                             { nombre: "id", tipo: "INTEGER",pk : true},
@@ -104,65 +155,42 @@ var DBHandlerClase = function(version) {
                             { nombre: "nombre_variable", tipo: "TEXT"},
                             { nombre: "valor", tipo: "TEXT"}
                         ]}               
-            ];    
+            ];  
 
-    this.initialize = function(_version) {
-        //url = serviceURL ? serviceURL : "http://localhost:5000/sessions";
-        try { 
-            if (!window.openDatabase) { 
-              alert('Este dispositivo no soporta Base de Datos local.'); 
-            } else { 
-              var shortName = DB_NOMBRE,
-                  version = _version == null  ? "1" : _version, //version actual
-                  displayName = 'BD Labores Cayalti',
-                  maxSize = 5*1024*1024, // in bytes 
-                  fnCheckVersion = function(actualVersion, arregloVersiones){
-                      var bol = false;
-
-                      for (var i = arregloVersiones.length - 1; i >= 0; i--) {
-                        var vers = arregloVersiones[i];
-                        bol = parseFloat(vers) == parseFloat(actualVersion) || bol;
-                        if (bol == true){
-                          return bol;
-                        }
-                      };
-
-                      return bol;
-                  },
-                  _disversion;
-
-              this.mydb = openDatabase(shortName, "", displayName, maxSize);
-
-              _disversion = this.mydb.version;
-
-              /*todas las versiones liberadas*/
-              var versionesLiberadas = ["1"];
-              if (fnCheckVersion(_disversion, versionesLiberadas) && _disversion != version) {
-                var self = this;
-                this.mydb.changeVersion(_disversion, version, function(db){
-                    sekf.limpiarEstructura();                  
-                    self.crearEstructura();
-                });
-                return;
-              }
-
-              this.crearEstructura();            
-             }
-        } catch(e) { console.error(e); alert(e.message); }
-
-        return this;
-    };
-
-
-    this.crearEstructura = function(){
-       try {
             for (var i = _tables.length - 1; i >= 0; i--) {
                 this.crearTabla(_tables[i]);
             };
        } 
        catch(e){ 
             console.error(e); 
-        }
+        } 
+    };
+
+    this.upgradeVersion_2 = function(){
+      try{
+        var _tables = ["usuario",
+                    "personal",
+                    "turno",
+                    "campo",
+                    "actividad",
+                    "labor",
+                    "tipo_labor",
+                    "registro_dia",
+                    "registro_dia_personal",
+                    "registro_labor",
+                    "registro_labor_personal",
+                    "_variables_"];
+
+        for (var i = _tables.length - 1; i >= 0; i--) {
+          const sql = "ALTER TABLE "+_tables[i]+" ADD idempresa TEXT NOT NULL DEFAULT '' ";
+          this.mydb.transaction(
+            function(transaction) {
+                transaction.executeSql(sql, [], this.nullDataHandler, this.errorHandler);
+              });
+        };
+      }catch(e){
+        console.error(e);
+      }
     };
 
     this.crearTabla = function(objTabla) {
@@ -185,12 +213,7 @@ var DBHandlerClase = function(version) {
               
               this.mydb.transaction(
                 function(transaction) {
-                  transaction.executeSql(sql, [], this.nullDataHandler, this.errorHandler);
-                    /* transaction.executeSql(sql, [], 
-                      function(transaction_, results_){
-                        transaction_.executeSql("INSERT INTO usuario(cod_usuario, nombres_apellidos, cod_rol, usuario, clave) VALUES (-1,'ADMIN',0,'admin','"+md5('123456')+"')", [], this.nullDataHandler, this.errorHandler);
-                      }, this.errorHandler); 
-                   */
+                    transaction.executeSql(sql, [], this.nullDataHandler, this.errorHandler);
                   });
           } 
           catch(e) { 
@@ -227,13 +250,6 @@ var DBHandlerClase = function(version) {
 
     this.limpiarEstructura = function(){
          try {
-            /*Aqui se va a crear la estructura de la BBDD
-            usuario
-            campos
-            parcelas
-            coordenadas_parcelas
-            formularios
-            */
             for (var i = _tables.length - 1; i >= 0; i--) {
                 this.limpiarTabla(_tables[i].nombre);
             };

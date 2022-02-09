@@ -1,4 +1,4 @@
-var FrmRegistroAsistenciaView = function (servicio_frm, cache, data_usuario, fecha_dia, servicio_gps) {
+var FrmRegistroAsistenciaView = function ({fecha_dia}) {
     var self, 
         $content,
         $listado,
@@ -91,7 +91,7 @@ var FrmRegistroAsistenciaView = function (servicio_frm, cache, data_usuario, fec
             }
             
             if (posicion){
-                servicio_gps.restart(posicion.coords.latitude, posicion.coords.longitude);    
+                SERVICIO_GPS.restart(posicion.coords.latitude, posicion.coords.longitude);    
                 _BLOQUEO_BUSQUEDA = false;
                 GPSOK = 1;
                 return;
@@ -104,29 +104,28 @@ var FrmRegistroAsistenciaView = function (servicio_frm, cache, data_usuario, fec
             modalMensaje.destroy();
         }
 
-        if (!servicio_gps.isCached()){
+        if (!SERVICIO_GPS.isCached()){
             modalMensaje = new ModalMensajeComponente().initRender({titulo: "GPS", texto_informacion: "Consiguiendo información GPS."});
             modalMensaje.mostrar();
             _BLOQUEO_BUSQUEDA = true;
             geoposicionar(fnGPSOK);
         } else {
-            servicio_gps.restart();
+            SERVICIO_GPS.restart();
         }       
     };
 
     this.listarAsistencias = function(){
         /*Función que manda el código de turno y devuele hora E,S y descripcion.*/
-        $.when( servicio_frm.listarAsistencias(fecha_dia, data_usuario.dni)
-                .done(function(resultado){
-                    var arrAsistentes = rs2Array(resultado.rows);
-
-                    TOTAL_ASISTENTES_ACTUAL = parseInt(arrAsistentes.length);
-
-                    listaAsistenciaListView.setAsistentes(arrAsistentes);
-                    $listado.html(listaAsistenciaListView.$el);                        
-                })
-                .fail(function(e){console.error(e);})
-        );
+        //var self = this; 
+        new RegistroDiaPersonal({fecha_dia: fecha_dia, dni_usuario: DATA_NAV.usuario.dni}).getRegistrosPorDia()
+            .done(function(resultado){
+                TOTAL_ASISTENTES_ACTUAL = parseInt(resultado.length);
+                listaAsistenciaListView.setAsistentes(resultado);
+                $listado.html(listaAsistenciaListView.$el);    
+            })
+            .fail(function(error){
+                console.error(error);
+            });
     };
 
 
@@ -162,7 +161,7 @@ var FrmRegistroAsistenciaView = function (servicio_frm, cache, data_usuario, fec
                 }
 
                 if (objBuscado.existe_usuario > 0){
-                    var tmpLL = isGPSActivated ? servicio_gps.getLL() : {latitud: "-1", longitud: "-1"};
+                    var tmpLL = isGPSActivated ? SERVICIO_GPS.getLL() : {latitud: "-1", longitud: "-1"};
                     var objR = {
                                 dni_personal : numeroDNI,
                                 fecha_dia : fecha_dia,
@@ -302,7 +301,7 @@ var FrmRegistroAsistenciaView = function (servicio_frm, cache, data_usuario, fec
         }
 
         if (isGPSActivated){
-            servicio_gps.stop();    
+            SERVICIO_GPS.stop();    
         }
         
         this.$el = null;

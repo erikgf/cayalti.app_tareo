@@ -1,4 +1,4 @@
-var LoginView = function(servicio, servicio_web, cache) {
+var LoginView = function() {
     var self = this,
         _CLICKS = 0,
         SINCRO_AUTO = true,
@@ -37,7 +37,6 @@ var LoginView = function(servicio, servicio_web, cache) {
      this.setEventos = function(){
         this.$el.on("change", "#txt-seleccionar-empresa", this.seleccionarEmpresa);
         this.$el.on("submit","form", this.iniciarSesion);
-        this.$el.on("click","img", this.resetearBD);
         this.$el.on("click","#btn-sincronizar", this.verificarSincronizacionUltimaManual);
      };
 
@@ -49,24 +48,31 @@ var LoginView = function(servicio, servicio_web, cache) {
 
      this.iniciarSesion = function(e){
         e.preventDefault();
+
         var onIniciarSesion = function(){
             var $form = self.$el.find("form"),
                 _login = $form.find("#txt-login").val(), 
-                _clave = $form.find("#txt-clave").val();
+                _clave = $form.find("#txt-clave").val(),
+                _empresa  = $form.find("#txt-seleccionar-empresa").val();
 
-            $.when( servicio.iniciarSesion(_login, md5(_clave).toUpperCase()))
+
+            new Usuario().iniciarSesion(_login, md5(_clave))
                 .done( function( resultado ){
-                    var rows = resultado.rows;
-
-                    if (rows.length > 0){
+                    if (resultado.length > 0){
                         DATA_NAV.acceso = true;
-                        DATA_NAV.usuario = rows.item(0);
+                        DATA_NAV.usuario = resultado[0];
+
                         localStorage.setItem(VARS.NOMBRE_STORAGE, JSON.stringify(DATA_NAV));
-                        consultarDiasRegistro();
+                        new CacheComponente("_empresa").set(_empresa);
+
+                        router.load("inicio");
                     } else {
                         alert("Usuario no válido.");
                     }
-            });
+                })
+                .fail( function(error){
+                    console.error(error);
+                }); //EndWhen
         };
 
         checkGPSActivado(onIniciarSesion);
@@ -110,17 +116,6 @@ var LoginView = function(servicio, servicio_web, cache) {
           });
     };
 
-    this.resetearBD = function(e){
-        e.preventDefault();
-        _CLICKS++;
-        if (_CLICKS > 5){
-            alert("Se eliminará BD, resetee app en 5 segundos.");
-            servicio.resetearBD();
-            _CLICKS = 0;
-        }
-        
-    };
-
     var verificarSincronizacionUltima = function(forzar){
         /*consulta si hay un valor de fecha guardado 
             si no hay, o no es la fecha acual
@@ -133,11 +128,10 @@ var LoginView = function(servicio, servicio_web, cache) {
         }
 
         var fechaUltima, hoy;
-            objSincronizador = new SincronizadorClase(servicio, servicio_web, 
-                     ["Usuarios", "Actividades", "Campos","Labores", "Personal","Turnos"]);
+        objSincronizador = new Sincronizador(["Usuario", "Actividad", "Campo","Labor", "Personal","Turno"]);
 
         if (forzar == true){
-            objSincronizador.actualizarDatos();
+            objSincronizador.sincronizarDatos();
             return;
         }
 
@@ -145,10 +139,11 @@ var LoginView = function(servicio, servicio_web, cache) {
         hoy = getHoy();
 
         if (fechaUltima == null || hoy != fechaUltima){
-            objSincronizador.actualizarDatos();
+            objSincronizador.sincronizarDatos();
         }  else {
             objSincronizador.destroy();
         }
+
     };
 
     this.verificarSincronizacionUltimaManual = function(){
@@ -191,7 +186,6 @@ var LoginView = function(servicio, servicio_web, cache) {
 
         this.$el.off("change", "#txt-seleccionar-empresa", this.seleccionarEmpresa);
         this.$el.off("submit","form", this.iniciarSesion);
-        this.$el.off("click","img", this.resetearBD);
         this.$el.off("click","#btn-sincronizar", this.verificarSincronizacionUltimaManual);
 
         this.$el = null;

@@ -188,7 +188,7 @@
                     <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
             </a>
             <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
-                <div class="dropdown-rotulo">{{nombre_usuario}}</div>
+                <div class="dropdown-rotulo">{{nombres_apellidos}}</div>
             </div>
             <h1 class="title">Registro Labor</h1>
         </header>
@@ -336,7 +336,7 @@
     			<img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
     		</div>
             <div class="btn btn-nav dropdown pull-right" id="btn-menu">
-                <div class="dropdown-rotulo">{{nombre_usuario}}</div>
+                <div class="dropdown-rotulo">{{nombres_apellidos}}</div>
                 <div class="dropdown-content">
                   <a href="javascript:;" id="btn-actualizar">Sincronizar</a>
                   <a href="javascript:;" onclick="cerrarSesion();">Cerrar Sesión</a>
@@ -492,13 +492,17 @@
 	{{else}}
 	<p>No hay trabajadores disponibles.</p>
 	{{/asistentes}}
-</script> <script id='ListadoLaboresView-hbs' type='text/template'>    	<header class="bar bar-nav">
+</script> <script id='ListaDiasTrabajoListView-hbs' type='text/template'>{{#.}}
+<li data-id="{{fecha_dia_raw}}" class="table-view-cell {{#if opcion_seleccionada}}btn-appbase{{else}}btn-gray{{/if}}">
+	<a> DÍA: {{fecha_dia}}</a> 
+</li>
+{{/.}}</script> <script id='ListadoLaboresView-hbs' type='text/template'>    	<header class="bar bar-nav">
             <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
                     <span class="icon icon-left-nav pull-left"></span>
                     <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
             </a>
             <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
-                <div class="dropdown-rotulo">{{nombre_usuario}}</div>
+                <div class="dropdown-rotulo">{{nombres_apellidos}}</div>
             </div>
             <h1 class="title">Listado Tareo</h1>
         </header>
