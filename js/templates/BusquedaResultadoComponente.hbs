@@ -1,21 +1,21 @@
 {{#if no_encontrado}}
 	<div class="resultado-mensaje no-encontrado">
-		No se ha encontrado personal con DNI: "{{dni}}"
+		No se ha encontrado personal con DNI: "{{dni_personal}}"
 	</div>
 {{else}}
 	{{#if registro_existente}}
 	<div class="resultado-mensaje encontrado-existente">
-		<b>REGISTRO EXISTENTE:  <i>{{hora}}</i></b>
+		<b>REGISTRO EXISTENTE:  <i>{{hora_registro}}</i></b>
 	</div>
 	{{else}}
 	<div class="resultado-mensaje encontrado">
-		<b>REGISTRO GUARDADO:  <i>{{hora}}</i></b>
+		<b>REGISTRO GUARDADO:  <i>{{hora_registro}}</i></b>
 	</div>
 	{{/if}}
 	<ul class="table-view" style="padding-bottom: 20px;">
 		<li class="table-view-row">
 			<div>Nombres: </div>
-			<div>{{dni}} - {{nombres_apellidos}}</div>
+			<div>{{dni_personal}} - {{nombres_apellidos}}</div>
 		</li>  
 	</ul>
 {{/if}}

@@ -7,6 +7,7 @@ var Turno = function(data){
 	this.descripcion = "";
 	this.hora_entrada = "";
 	this.hora_salida = "";
+	this.idempresa = "";
 
 	this.init = function(data){
 		if (data){
@@ -15,14 +16,11 @@ var Turno = function(data){
 			this.hora_entrada = data.hora_entrada ?? "";
 			this.hora_salida = data.hora_salida ?? "";
 		}
+		this.idempresa = new CacheComponente("_empresa").get();
 	};
 
-	this.getTurno = function() {
-		return $.when(_DB_HANDLER.listarFiltro(storeName, {indexes: "id_turno", values: this.id_turno}));
-	};
-
-	this.getTurnos = function(){
-		return $.when(_DB_HANDLER.listar(storeName));
+	this.consultar = function(){
+		return $.when(_DB_HANDLER.listarFiltro(storeName, {indexes: "idempresa", values: this.idempresa}));
 	};
 
 	this.insertarPorSincronizacion = function(registros){

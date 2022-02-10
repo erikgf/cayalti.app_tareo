@@ -11,11 +11,7 @@ var FrmRegistroAsistenciaView = function ({fecha_dia}) {
         listaAsistenciaListView,
         busquedaResultadoComponente,
         modalMensaje,
-        GPSOK = 0,
-        rs2Array = resultSetToArray,
-        formateoFecha = _formateoFecha,
-        getHora = _getHora,
-        armarHora = _armarHora;
+        GPSOK = 0;
 
     var isGPSActivated = VARS.GET_ISGPSACTIVATED() == "true";
 
@@ -35,7 +31,7 @@ var FrmRegistroAsistenciaView = function ({fecha_dia}) {
  
     this.render = function() {
         this.$el.html(this.template({
-                    fecha_registro : formateoFecha(fecha_dia), 
+                    fecha_registro : _formateoFecha(fecha_dia), 
                     imagen_icon: VARS.GET_ICON()
                 }));
 
@@ -70,7 +66,7 @@ var FrmRegistroAsistenciaView = function ({fecha_dia}) {
             e.preventDefault();
             var dataset = this.dataset;
             confirmar("¿Desea eliminar el registro de "+dataset.nombre+"?", function(){
-                self.eliminarRegistroDiaPersonal(dataset.dnipersonal, dataset.numeroacceso, dataset.tipo_registro);
+                self.eliminarRegistroDiaPersonal(dataset.dnipersonal, dataset.numeroacceso, dataset.tiporegistro);
             });
         };
 
@@ -137,75 +133,85 @@ var FrmRegistroAsistenciaView = function ({fecha_dia}) {
         this.registrarAsistencia(valor);
     }
 
-    this.registrarAsistencia = function(numeroDNI){     
+    this.registrarAsistencia = function(dni_personal){     
         if (fecha_dia == null || fecha_dia == ""){
             alert("No se ha encontrado día de asistencia seleccionado.")
             return;
         }
 
-        _BLOQUEO_BUSQUEDA = true;
+        let objRegistroDiaPersonal = new RegistroDiaPersonal({fecha_dia: fecha_dia, dni_usuario: DATA_NAV.usuario.dni, dni_personal: dni_personal});
 
-        $.when( servicio_frm.obtenerUltimoMovimientoAsistencia({
-                    numeroDNI : numeroDNI,
-                    fechaDia : fecha_dia
-                })
-            .done( function( resultado ){ 
-                var rows = resultado.rows,
-                    objBuscado = rows.item(0);
+        var reqObj = {
+            obtenerUltimoMovimientoAsistencia: objRegistroDiaPersonal.obtenerUltimoMovimientoAsistencia(),
+            obtenerRegistroPersonal : new Personal({dni: dni_personal}).obtenerRegistro()
+        };    
+        _BLOQUEO_BUSQUEDA = true;
+        $.whenAll(reqObj)
+            .done(function(resultado){
+                let ultimoMovimientoAsistencia = resultado.obtenerUltimoMovimientoAsistencia,
+                    registroPersonal = resultado.obtenerRegistroPersonal.length > 0 ? resultado.obtenerRegistroPersonal[0] : null;
+
+                let existe_usuario = registroPersonal !== null;
+                let objBuscado = {
+                    existe_asistencia: ultimoMovimientoAsistencia.length,
+                    existe_usuario : existe_usuario,
+                    tipo_registro: ultimoMovimientoAsistencia.length ? (ultimoMovimientoAsistencia[0].tipo_registro == "E" ? "S" : "E") : "E",
+                    dni_personal: (existe_usuario ? registroPersonal.dni : ''),
+                    nombres_apellidos : (existe_usuario ? registroPersonal.nombres_apellidos : '')
+                };
 
                 if (objBuscado.existe_asistencia >= 2 && objBuscado.tipo_registro == "S"){
                     $filtro.val("");
-                    alert("El personal "+numeroDNI+" ya tiene ENTRADA Y SALIDA registrada.")
+                    alert("El personal "+dni_personal+" ya tiene ENTRADA Y SALIDA registrada.")
                     _BLOQUEO_BUSQUEDA = false;
                     return;
                 }
 
                 if (objBuscado.existe_usuario > 0){
                     var tmpLL = isGPSActivated ? SERVICIO_GPS.getLL() : {latitud: "-1", longitud: "-1"};
+                    var hora_registro = _getHora();
                     var objR = {
-                                dni_personal : numeroDNI,
-                                fecha_dia : fecha_dia,
+                                nombres_apellidos : objBuscado.nombres_apellidos,
                                 tipo_registro : objBuscado.tipo_registro,
                                 numero_acceso : TOTAL_ASISTENTES_ACTUAL + 1,
-                                dni_usuario : data_usuario.dni,
                                 latitud: tmpLL.latitud,
-                                longitud: tmpLL.longitud
+                                longitud: tmpLL.longitud,
+                                hora_registro: hora_registro
                             };
 
-                    $.when( servicio_frm.registrarAsistencia(objR)
-                        .done( function( _resultado ){ 
+                    objRegistroDiaPersonal.registrarAsistencia(objR)
+                        .done( function( resultado ){ 
                             objBuscado.no_encontrado = false;
-                            objBuscado.hora = getHora();
+                            objBuscado.hora_registro = hora_registro;
                             objBuscado.tipo_movimiento = objBuscado.tipo_registro == "E" ? "ENTRADA" : "SALIDA";
                             
                             self.mostrarResultado(objBuscado);
 
                             /*si ya está completo el par, que los marque a ambos como esatado_envio = 1*/
                             if (objBuscado.existe_asistencia >=1 && objBuscado.tipo_registro == "S"){
-                                servicio_frm.marcarRegistroParaEnvio(objR);    
+                                objRegistroDiaPersonal.marcarRegistrosParaEnvio({estado_envio: "1"});    
                             }
                         })
                         .fail(function(e){
                             _BLOQUEO_BUSQUEDA = false;
                             console.error(e);    
                         })
-                    ); 
 
                 } else {
                    self.mostrarResultado({
                         no_encontrado : true,
-                        dni : numeroDNI
+                        dni : dni_personal
                    });
                 }
-            })
-            .fail(function(e){
-                _BLOQUEO_BUSQUEDA = false;
-                console.error(e);    
-            })
-        ); 
-        //EndWhen
-    };
 
+            })
+            .fail(function(error){
+                _BLOQUEO_BUSQUEDA = false;
+                console.error(error);
+            });
+        
+        reqObj = null;
+    };
 
     this.mostrarResultado = function(objBuscado){
         var objAsistente;
@@ -223,11 +229,10 @@ var FrmRegistroAsistenciaView = function ({fecha_dia}) {
         if (objBuscado.no_encontrado == false){
             objAsistente = {
                 numero_acceso : ++TOTAL_ASISTENTES_ACTUAL,
-                dni : objBuscado.dni,
+                dni_personal : objBuscado.dni_personal,
                 nombres_apellidos : objBuscado.nombres_apellidos,
-                hora: objBuscado.hora,
-                tipo_registro : objBuscado.tipo_movimiento,
-                tipo_registro_raw : objBuscado.tipo_movimiento.charAt(0),
+                hora_registro: objBuscado.hora_registro,
+                tipo_registro : objBuscado.tipo_movimiento.charAt(0),
                 estado_envio : 0
             };
 
@@ -247,24 +252,18 @@ var FrmRegistroAsistenciaView = function ({fecha_dia}) {
         barcodeScan(fnOK);
     };
 
-    this.eliminarRegistroDiaPersonal = function(numeroDNI, numero_acceso, tipo_registro){        
+    this.eliminarRegistroDiaPersonal = function(dni_personal, numero_acceso, tipo_registro){        
         var objRegistro = {
-             dni_personal : numeroDNI,
-             fecha_dia : fecha_dia,
              numero_acceso : numero_acceso,
              tipo_registro : tipo_registro
          };
 
-        var reqObj = {
-            RQEliminar : servicio_frm.eliminarRegistroDiaPersonal(objRegistro)
-        };
-
-        $.whenAll(reqObj)
-          .done(function(res){
-                    self.listarAsistencias();
-                })
-          .fail(function(e){
-                console.error(e);    
+         new RegistroDiaPersonal({fecha_dia: fecha_dia, dni_personal: dni_personal}).eliminarRegistro(objRegistro)
+            .done(function(resultado){
+                self.listarAsistencias();  
+            })
+            .fail(function(error){
+                console.error(error);
             });
     };
 
@@ -272,13 +271,11 @@ var FrmRegistroAsistenciaView = function ({fecha_dia}) {
     this.destroy = function(){
         $filtro.off("keyup", __keyupinput);
         $filtro.off("keydown", __keydowninput);
-        $filtro = null;
-
         $btnScan.off("click", __click);
-        $btnScan = null;
-
         $listado.off("click",".btn-eliminar", __clickEliminar);
 
+        $filtro = null;
+        $btnScan = null;
         $content = null;
         $listado =  null;
         $resultado = null;

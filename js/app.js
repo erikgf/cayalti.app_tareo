@@ -104,7 +104,7 @@ var onDeviceReady = function () {
           router.addRoute('listado-labores/:fechadia', function(fecha_dia) {
             if (DATA_NAV.acceso){
                 //CACHE_VIEW.seleccion_opcion.idturno = idturno;
-                slider.slidePage(new ListadoLaboresView({fecha_dia, fecha_dia}).render().$el);
+                slider.slidePage(new ListadoLaboresView({fecha_dia: fecha_dia}).render().$el);
             }
           });
 
@@ -112,7 +112,7 @@ var onDeviceReady = function () {
             if (DATA_NAV.acceso){
                 slider.slidePage(new FrmRegistroLaborView({
                                     fecha_dia: fecha_dia,
-                                    idregistrolaboredicion: idregistrolaboredicion
+                                    id_registro_labor_edicion: idregistrolaboredicion
                                   }).render().$el);
             }
           });

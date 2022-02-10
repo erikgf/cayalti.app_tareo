@@ -1,21 +1,21 @@
  <script id='BusquedaResultadoComponente-hbs' type='text/template'>{{#if no_encontrado}}
 	<div class="resultado-mensaje no-encontrado">
-		No se ha encontrado personal con DNI: "{{dni}}"
+		No se ha encontrado personal con DNI: "{{dni_personal}}"
 	</div>
 {{else}}
 	{{#if registro_existente}}
 	<div class="resultado-mensaje encontrado-existente">
-		<b>REGISTRO EXISTENTE:  <i>{{hora}}</i></b>
+		<b>REGISTRO EXISTENTE:  <i>{{hora_registro}}</i></b>
 	</div>
 	{{else}}
 	<div class="resultado-mensaje encontrado">
-		<b>REGISTRO GUARDADO:  <i>{{hora}}</i></b>
+		<b>REGISTRO GUARDADO:  <i>{{hora_registro}}</i></b>
 	</div>
 	{{/if}}
 	<ul class="table-view" style="padding-bottom: 20px;">
 		<li class="table-view-row">
 			<div>Nombres: </div>
-			<div>{{dni}} - {{nombres_apellidos}}</div>
+			<div>{{dni_personal}} - {{nombres_apellidos}}</div>
 		</li>  
 	</ul>
 {{/if}}
@@ -282,12 +282,12 @@
                 </li>
                 <div class="row-duo table-view-row">
                     <div> Campo: {{campo}} </div>
-                    <div> Tareo: {{tipo_tareo}} </div>
+                    <div> Tareo: {{#if_ idtipotareo '==' 'J'}}JORNAL{{else}}POR TAREO{{/if_}} </div>
                 </div>
             	<li class="table-view-cell">
                     <b>Labor: {{labor}}</b>
 				</li>
-                {{#if_ tipo_tareo '==' 'JORNAL'}}
+                {{#if_ idtipotareo '==' 'J'}}
                     {{#if_ idturno '==' '03'}}
                     <div class="row-duo table-view-row">
                         <div>
@@ -324,6 +324,7 @@
                   </a>
                 </div>
                 <div id="blkasistencia" class="blk blkactive"> 
+                    <input class="txt-buscar-filtrar" type="search" placeholder="Buscar..."/>
                     <ul class="lst lst-asistencia table-view"></ul>
                 </div>
                 <div id="blkasignacion" class="blk">
@@ -420,7 +421,7 @@
 	</style>
 	{{#asignaciones}}
 		<li class="table-view-cell">
-			<div class="nombre">{{dni}} - {{nombres_apellidos}}</div>
+			<div class="nombre">{{dni_personal}} - {{nombres_apellidos}}</div>
 
 			{{#if_ ../idturno '==' '03'}}
 					<div class="table-view-row table-view-row-absolute" style="position: relative;height: 40px;">
@@ -473,12 +474,12 @@
 	{{/asignaciones}}
 </script> <script id='ListaAsistenciaListView-hbs' type='text/template'><ul class="lista-asistencia table-view">
 	{{#each asistentes}}
-	<li class="table-view-cell cell-{{#if_ tipo_registro_raw '==' 'E'}}entrada{{else}}salida{{/if_}}">
+	<li class="table-view-cell cell-{{#if_ tipo_registro '==' 'E'}}entrada{{else}}salida{{/if_}}">
 		{{#if_ estado_envio '<' 1}}
-		<span data-nombre="{{nombres_apellidos}}" data-tiporegistro="{{tipo_registro_raw}}" data-dnipersonal="{{dni}}" data-numeroacceso="{{numero_acceso}}" class="btn-eliminar icon icon-trash"></span>
+		<span data-nombre="{{nombres_apellidos}}" data-tiporegistro="{{tipo_registro}}" data-dnipersonal="{{dni_personal}}" data-numeroacceso="{{numero_acceso}}" class="btn-eliminar icon icon-trash"></span>
 		{{/if_}}
-		<div class="nombre">({{indexerReverse ../total @index}}) {{dni}} - {{nombres_apellidos}}</div>
-		<div class="tipo-registro">{{tipo_registro}}: {{hora}} 
+		<div class="nombre">({{indexerReverse ../total @index}}) {{dni_personal}} - {{nombres_apellidos}}</div>
+		<div class="tipo-registro">{{#if_ tipo_registro '==' 'E'}}ENTRADA{{else}}SALIDA{{/if_}}: {{hora_registro}} 
 			{{#if_ estado_envio '>=' 1}}
 			<span class="badge badge-turno-enviado bg-verde"><b class="icon icon-check"></b></span>
 			{{/if_}}
@@ -486,8 +487,8 @@
 	</li> 
 	{{/each}}
 </ul></script> <script id='ListaAsistenciaTareoListView-hbs' type='text/template'>	{{#asistentes}}
-	<li class="table-view-cell{{#if_ seleccionado '==' '1'}} cell-seleccionado{{/if_}}" data-dni="{{dni}}" >
-		<div class="nombre">{{dni}} - {{nombres_apellidos}}</div>
+	<li class="table-view-cell{{#if_ seleccionado '==' '1'}} cell-seleccionado{{/if_}}" data-dni="{{dni_personal}}" >
+		<div class="nombre">{{dni_personal}} - {{nombres_apellidos}}</div>
 	</li> 
 	{{else}}
 	<p>No hay trabajadores disponibles.</p>
@@ -502,7 +503,7 @@
                     <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
             </a>
             <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
-                <div class="dropdown-rotulo">{{nombres_apellidos}}</div>
+                <div class="dropdown-rotulo">{{nombre_usuario}}</div>
             </div>
             <h1 class="title">Listado Tareo</h1>
         </header>

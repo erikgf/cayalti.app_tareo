@@ -13,18 +13,20 @@ var Labor = function(data){
 			this.idactividad = data.idactividad ?? null;
 			this.descripcion = data.descripcion ?? "";	
 		}
+
+		this.idempresa = new CacheComponente("_empresa").get();
 	};
 
 	this.getLabor = function() {
 		return $.when(_DB_HANDLER.listarFiltro(storeName, {indexes: "idlabor", values: this.idlabor}));
 	};
 
-	this.getLabores = function(){
+	this.consultar = function(){
 		return $.when(_DB_HANDLER.listar(storeName));
 	};
 
-	this.getLaboresPorActividad = function(){
-		return $.when(_DB_HANDLER.listarFiltro(storeName, {indexes: "idactividad", values: this.idactividad}));
+	this.consultarPorActividad = function(){
+		return $.when(_DB_HANDLER.listarFiltro(storeName, {indexes: "idactividad,idempresa", values: [this.idactividad,this.idempresa]}));
 	};
 
 	this.insertarPorSincronizacion = function(registros){

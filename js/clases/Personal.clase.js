@@ -15,10 +15,12 @@ var Personal = function(data){
 			this.rol = data.rol ?? "";
 			this.idplanilla = data.idplanilla ?? "";
 		}
+
+		this.idempresa = new CacheComponente("_empresa").get();
 	};
 
-	this.consultarPersonal = function(){
-		return $.when(_DB_HANDLER.listarFiltro(storeName, {"indexes": "dni", "values": this.dni}));
+	this.obtenerRegistro = function(){
+		return $.when(_DB_HANDLER.listarFiltro(storeName, {"indexes": "dni,idempresa" ,"values": [this.dni, this.idempresa]}));
 	};
 
 	this.insertarPorSincronizacion = function(registros){

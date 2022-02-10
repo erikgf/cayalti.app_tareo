@@ -33,7 +33,7 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
         var self = this; 
         var reqObj = {
                 getRegistroDiasPersonal: new RegistroDiaPersonal({fecha_dia: fecha_dia}).getRegistrosDia(),
-                getRegistroLaborPersonal : new RegistroLaborPersonal({fecha_dia: fecha_dia}).getRegistrosDia(),
+                getRegistroLaborPersonal : new RegistroLaborPersonal({fecha_dia: fecha_dia, dni_usuario: DATA_NAV.usuario.dni}).getRegistrosDia(),
             };
 
         $.whenAll(reqObj)
@@ -57,6 +57,7 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                     objCacheComponente.set(isGPSActivated);
                 }
 
+                //aqui falta calcular los que tengan estado_envio == 1 para que se dibujen como PENDIENTES de envio.
 
                 self.$el.html(self.template({
                     imagen_icon: VARS.GET_ICON(),

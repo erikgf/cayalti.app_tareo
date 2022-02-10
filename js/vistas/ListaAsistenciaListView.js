@@ -18,9 +18,9 @@ var ListaAsistenciaListView = function () {
 
     this.templateUno = function(asistente){
         return '<li class="table-view-cell cell-'+(asistente.tipo_registro ? "entrada" : "salida")+'">'+
-                    '<span data-nombre="'+asistente.nombres_apellidos+'" data-dnipersonal="'+asistente.dni+'" data-numeroacceso="'+asistente.numero_acceso+'" class="btn-eliminar icon icon-trash"></span>'+
-                    '<div class="nombre">('+asistente.indice+') '+asistente.dni+' - '+asistente.nombres_apellidos+'</div>'+
-                    '<div class="tipo-registro">'+asistente.tipo_registro+': '+asistente.hora+'</div>'+
+                    '<span data-nombre="'+asistente.nombres_apellidos+'" data-dnipersonal="'+asistente.dni_personal+'" data-numeroacceso="'+asistente.numero_acceso+'" class="btn-eliminar icon icon-trash"></span>'+
+                    '<div class="nombre">('+asistente.indice+') '+asistente.dni_personal+' - '+asistente.nombres_apellidos+'</div>'+
+                    '<div class="tipo-registro">'+(asistente.tipo_registro ? "ENTRADA" : "SALIDA")+': '+asistente.hora_registro+'</div>'+
                 '</li> ';
     };
 
@@ -28,6 +28,7 @@ var ListaAsistenciaListView = function () {
         if(!asistentes){
             asistentes = [];
         }
+
         this.$el.html(this.template({asistentes: asistentes, total: asistentes.length}));
         return this;
     };

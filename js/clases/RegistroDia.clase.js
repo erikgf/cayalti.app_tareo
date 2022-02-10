@@ -15,7 +15,7 @@ var RegistroDia = function(data){
 	};
 
 	this.getRegistroDias = function(){
-		return $.when(_DB_HANDLER.listarFiltro(storeName, {indexes: "idempresa", values: [this.idempresa]}));
+		return $.when(_DB_HANDLER.listarFiltro(storeName, {indexes: "idempresa", values: this.idempresa}));
 	};
 
 	this.verificarExisteFecha = function(){
@@ -23,19 +23,17 @@ var RegistroDia = function(data){
 	};
 
 	this.eliminarRegistroDia = function(){
-		return $.when(_DB_HANDLER.eliminar(storeName, "fecha_dia,idempresa", 
+		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: this.idempresa}, 
 				(objRegistro)=>{
-					return 	objRegistro.fecha_dia === this.fecha_dia && 
-							objRegistro.idempresa === this.idempresa;		
+					return 	objRegistro.fecha_dia === this.fecha_dia;		
 				})
 			);
 	};
 
 	this.eliminarRegistroDiaHasta = function(){
-		return $.when(_DB_HANDLER.eliminar(storeName, "fecha_dia,idempresa", 
+		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: this.idempresa}, 
 			(objRegistro)=>{
-				return 	objRegistro.fecha_dia < this.fecha_dia &&
-						objRegistro.idempresa === this.idempresa
+				return 	objRegistro.fecha_dia < this.fecha_dia
 			})
 		);
 	};

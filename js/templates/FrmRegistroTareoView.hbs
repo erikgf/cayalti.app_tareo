@@ -57,12 +57,12 @@
                 </li>
                 <div class="row-duo table-view-row">
                     <div> Campo: {{campo}} </div>
-                    <div> Tareo: {{tipo_tareo}} </div>
+                    <div> Tareo: {{#if_ idtipotareo '==' 'J'}}JORNAL{{else}}POR TAREO{{/if_}} </div>
                 </div>
             	<li class="table-view-cell">
                     <b>Labor: {{labor}}</b>
 				</li>
-                {{#if_ tipo_tareo '==' 'JORNAL'}}
+                {{#if_ idtipotareo '==' 'J'}}
                     {{#if_ idturno '==' '03'}}
                     <div class="row-duo table-view-row">
                         <div>
@@ -99,6 +99,7 @@
                   </a>
                 </div>
                 <div id="blkasistencia" class="blk blkactive"> 
+                    <input class="txt-buscar-filtrar" type="search" placeholder="Buscar..."/>
                     <ul class="lst lst-asistencia table-view"></ul>
                 </div>
                 <div id="blkasignacion" class="blk">

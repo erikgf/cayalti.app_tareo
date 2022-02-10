@@ -5,20 +5,19 @@ var Campo = function(data){
 
 	this.idcampo = null;
 	this.descripcion = "";
+	this.idempresa = "";
 
 	this.init = function(data){
 		if (data){
 			this.idcampo = data.idcampo ?? null;
 			this.descripcion = data.descripcion ?? "";	
 		}
+
+		this.idempresa = new CacheComponente("_empresa").get();
 	};
 
-	this.getCampo = function() {
-		return $.when(_DB_HANDLER.listarFiltro(storeName, {indexes: "idcampo", values: this.idcampo}));
-	};
-
-	this.getCampos = function(){
-		return $.when(_DB_HANDLER.listar(storeName));
+	this.consultar = function(){
+		return $.when(_DB_HANDLER.listarFiltro(storeName, {indexes: "idempresa", values: this.idempresa}));
 	};
 
 	this.insertarPorSincronizacion = function(registros){

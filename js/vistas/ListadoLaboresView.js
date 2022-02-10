@@ -1,12 +1,10 @@
-var ListadoLaboresView = function (fecha_dia,  servicio_frm, cache, usuario) {
+var ListadoLaboresView = function ({fecha_dia}) {
 	var self = this,
 		fechaOK = false,
         $content,
         $fecha,
         $actualTab, $actualContainer,
-        modalMensaje,
-        getHoy = _getHoy,
-		rs2Array = resultSetToArray;
+        modalMensaje;
 
 	this.initialize = function () {
         this.$el = $('<div/>');       
@@ -45,18 +43,7 @@ var ListadoLaboresView = function (fecha_dia,  servicio_frm, cache, usuario) {
 	};
 
 	var UIDone = function (res) {
-            var uiRegistroLabores = rs2Array(res.UIRegistroLabores.rows);
-            self.$el.html(self.template({
-                nombre_usuario: usuario.nombre_usuario,
-                imagen_icon: VARS.GET_ICON(),
-                //turno: res.UITurnoDescripcion.rows.item(0).descripcion,
-            	fecha_registro: fechaRegistro,
-                fecha_registro_raw : fecha_dia,
-                listado_labores : uiRegistroLabores
-            })); 
-
-            $content = self.$el.find(".content");
-            self.setEventos();
+            
         },
         UIFail = function (firstFail, name) {
             console.log('Fail for: ' + name);
@@ -70,69 +57,33 @@ var ListadoLaboresView = function (fecha_dia,  servicio_frm, cache, usuario) {
 	this.consultarUI = function(){
 		/*consultamos cultivos (de este usuario*/
 		var reqObj = {
-              //UITurnoDescripcion: servicio_frm.obtenerTurnoDescripcion(idturno),
-              UIRegistroLabores: servicio_frm.obtenerRegistrosLabores(fecha_dia, usuario.dni)
+              obtenerRegistrosDiaLabor : new RegistroLabor({fecha_dia: fecha_dia, dni_usuario: DATA_NAV.usuario.dni}).getRegistrosDia(),
+              obtenerRegistrosDiaLaborPersonal : new RegistroLaborPersonal({fecha_dia: fecha_dia, dni_usuario: DATA_NAV.usuario.dni}).getRegistrosDia()
             };
 
         $.whenAll(reqObj)
-          .done(UIDone)
-          .fail(UIFail);
+              .done(function(resultado){
+
+                let listado_labores = resultado.obtenerRegistrosDiaLabor.map(function(item){
+                    return {...item, registros_totales: 0};
+                });
+
+
+                self.$el.html(self.template({
+                    nombre_usuario: DATA_NAV.usuario.nombres_apellidos,
+                    imagen_icon: VARS.GET_ICON(),
+                    fecha_registro: _formateoFecha(fecha_dia),
+                    fecha_registro_raw : fecha_dia,
+                    listado_labores : listado_labores
+                })); 
+
+                $content = self.$el.find(".content");
+                self.setEventos();
+              })    
+              .fail(_UIFail);
+
+        reqObj = null;
 	};
-
-	var getHoy = function(){
-		var d = new Date(),
-			anio = d.getYear()+1900,
-			mes = d.getMonth()+1,
-			dia = d.getDate();
-
-			mes = (mes >= 10)  ? mes : ('0'+mes);
-
-		return anio+"-"+mes+"-"+dia;
-	};
-
-    var formateoFecha = function(fechaFormateoYanqui){
-        var arrTemp;
-
-        if (fechaFormateoYanqui == "" || fechaFormateoYanqui == null){
-            return "";
-        }
-
-        arrTemp = fechaFormateoYanqui.split("-");
-        return arrTemp[2]+"-"+arrTemp[1]+"-"+arrTemp[0];
-    };
-/*
-    this.irOpcion = function(e){
-        e.preventDefault();
-        var urlOpcion = this.dataset.url;
-        if (urlOpcion == ""){
-            return;
-        }
-
-        if (!fechaOK){
-            alert("No hay un día de registro habilitado.");
-            return;
-        }        
-
-        router.load(urlOpcion+"/"+fecha_dia);
-    };
-    */
-
-    this.eliminarDia = function(e){
-        e.preventDefault();
-            var fnConfirmar = function(){
-                var fechaTrabajo = fecha_dia,
-                    reqObj = {
-                      eliminarDia: servicio_frm.eliminarDia(fechaTrabajo, usuario.usuario)
-                    };
-
-                $.whenAll(reqObj)
-                  .done(eliminarDone)
-                  .fail(UIFail);
-
-                fechaTrabajo = null;
-            };
-        confirmar("¿Desea eliminar el día de asistencia? Esta acción es irreversible", fnConfirmar);        
-    };
 
     var checkFechaTrabajoVariable = function(){
         if (fechaOK == true){

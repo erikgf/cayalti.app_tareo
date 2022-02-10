@@ -5,20 +5,19 @@ var Actividad = function(data){
 
 	this.idactividad = null;
 	this.descripcion = "";
+	this.idempresa = "";
 
 	this.init = function(data){
 		if (data){
 			this.idactividad = data.idactividad ?? null;
 			this.descripcion = data.descripcion ?? "";	
 		}
+
+		this.idempresa = new CacheComponente("_empresa").get();
 	};
 
-	this.getActividad = function() {
-		return $.when(_DB_HANDLER.listarFiltro(storeName, {indexes: "idactividad", values: this.idactividad}));
-	};
-
-	this.getActividades = function(){
-		return $.when(_DB_HANDLER.listar(storeName));
+	this.consultar = function(){
+		return $.when(_DB_HANDLER.listarFiltro(storeName, {indexes: "idempresa", values: this.idempresa}));
 	};
 
 	this.insertarPorSincronizacion = function(registros){

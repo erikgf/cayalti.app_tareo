@@ -9,7 +9,7 @@ const BaseDatosLocal = function() {
     5.- Enviar informacion
     */
     var DB_NOMBRE = "bd_asistencia_labores_cayalti";
-    var VERSION = 5;
+    var VERSION = 19;
     var self = this;
     var db;
 
@@ -162,7 +162,7 @@ const BaseDatosLocal = function() {
       for (var i = tables.length - 1; i >= 0; i--) {
         const table = tables[i];
         store = tx.objectStore(table.nombre);
-        store.createIndex("idempresa", ["idempresa"]);
+        store.createIndex("idempresa", "idempresa");
       };
     };
 
@@ -170,7 +170,7 @@ const BaseDatosLocal = function() {
       var store = tx.objectStore("Usuario");
       store.createIndex('usuario,clave', ['usuario','clave']); 
 
-      var store = tx.objectStore("RegistroDia");
+      store = tx.objectStore("RegistroDia");
       store.createIndex('fecha_dia,idempresa', ['fecha_dia','idempresa']); 
       return;
     };
@@ -178,7 +178,9 @@ const BaseDatosLocal = function() {
     this.upgradeVersion_4 = function(db, tx){
       var store = tx.objectStore("RegistroDiaPersonal");
       store.createIndex('fecha_dia,tipo_registro,idempresa', ['fecha_dia','tipo_registro','idempresa']); 
-
+      store.createIndex('fecha_dia,tipo_registro,dni_usuario,idempresa', ['fecha_dia','tipo_registro','dni_usuario','idempresa']); 
+      store.createIndex('fecha_dia,dni_personal,idempresa', ['fecha_dia','dni_personal','idempresa']); 
+      
       store = tx.objectStore("RegistroLaborPersonal");
       store.createIndex('fecha_dia,idempresa', ['fecha_dia','idempresa']); 
       
@@ -186,13 +188,100 @@ const BaseDatosLocal = function() {
     };
 
     this.upgradeVersion_5 = function(db, tx){
-      var store 
-      store = tx.objectStore("RegistroDiaPersonal");
-      store.createIndex('fecha_dia,tipo_registro,dni_usuario,idempresa', ['fecha_dia','tipo_registro','dni_usuario','idempresa']); 
+      var store;
+      store = tx.objectStore("Personal");
+      store.createIndex('dni,idempresa', ['dni','idempresa']);   
       
       return;
     };
+
+    this.upgradeVersion_6 = function(db, tx){
+      var store;
+      store = tx.objectStore("RegistroDiaPersonal");
+      store.createIndex('nombres_apellidos', 'nombres_apellidos');   
+      
+      return;
+    };
+
+    this.upgradeVersion_7 = function(db, tx){
+      var store = tx.objectStore("RegistroDiaPersonal");
+      store.createIndex('fecha_dia,dni_usuario,idempresa', ['fecha_dia','dni_usuario','idempresa']); 
+      return;
+    };
+
+    this.upgradeVersion_8 = function(db, tx){
+      var store = tx.objectStore("RegistroLabor");
+      store.createIndex('campo', 'campo'); 
+      store.createIndex('turno', 'turno'); 
+      store.createIndex('labor', 'labor'); 
+      store.createIndex('actividad', 'actividad'); 
+      return;
+    };
+
+    this.upgradeVersion_9 = function(db, tx){
+      var store = tx.objectStore("RegistroLabor");
+      store.createIndex('fecha_dia,dni_usuario,idempresa', ['fecha_dia','dni_usuario','idempresa']); 
+      return;
+    };
+
+    this.upgradeVersion_10 = function(db, tx){
+      var store = tx.objectStore("RegistroLaborPersonal");
+      store.createIndex('dni_usuario', 'dni_usuario'); 
+      return;
+    };
+
+    this.upgradeVersion_11 = function(db, tx){
+      var store = tx.objectStore("RegistroLaborPersonal");
+      store.createIndex('fecha_dia,dni_usuario,idempresa', ['fecha_dia','dni_usuario','idempresa']); 
+      return;
+    };
+
+    this.upgradeVersion_12 = function(db, tx){
+      var store = tx.objectStore("Labor");
+      store.createIndex('idactividad,idempresa', ['idactividad','idempresa']); 
+      return;
+    };
+
+    this.upgradeVersion_13 = function(db, tx){
+      var store = tx.objectStore("RegistroLabor");
+      store.createIndex('fecha_dia,dni_usuario,idempresa,idcampo,idlabor,idtipotareo,idturno', 
+                          ['fecha_dia','dni_usuario','idempresa','idcampo','idlabor','idtipotareo','idturno']); 
+      store.createIndex('fecha_dia,dni_usuario,idempresa,idcampo,idlabor,idtipotareo,idturno,id', 
+                          ['fecha_dia','dni_usuario','idempresa','idcampo','idlabor','idtipotareo','idturno','id']); 
+      return;
+    };
     
+    this.upgradeVersion_15 = function(db, tx){
+      var store = tx.objectStore("RegistroLabor");
+      store.createIndex('id','id'); 
+      return;
+    };
+
+    this.upgradeVersion_16 = function(db, tx){
+      var store = tx.objectStore("RegistroLabor");
+      store.createIndex('idactividad','idactividad'); 
+      return;
+    };
+
+    this.upgradeVersion_17 = function(db, tx){
+      var store = tx.objectStore("RegistroLabor");
+      store.createIndex('fecha_dia,dni_usuario,idempresa,idlabor,idcampo,idturno',['fecha_dia','dni_usuario','idempresa','idlabor','idcampo','idturno']); 
+      return;
+    };
+
+    this.upgradeVersion_18 = function(db, tx){
+      var store = tx.objectStore("RegistroLaborPersonal");
+      store.createIndex('nombres_apellidos', 'nombres_apellidos'); 
+      return;
+    };
+
+    this.upgradeVersion_19 = function(db, tx){
+      var store = tx.objectStore("RegistroLaborPersonal");
+      store.createIndex('fecha_dia,dni_usuario,idempresa,idcampo,idlabor,idturno', 
+                          ['fecha_dia','dni_usuario','idempresa','idcampo','idlabor','idturno']); 
+      return;
+    };
+
 
     this.registrar = function(storeName, data){
       var transaction = db.transaction(storeName, 'readwrite');
@@ -322,8 +411,9 @@ const BaseDatosLocal = function() {
 
     this.eliminar = function(storeName, whereKeys, fnRuleDelete){
       const store = db.transaction(storeName, 'readwrite').objectStore(storeName);
-      const index = store.index(whereKeys);
-      const query = index.openCursor(null);
+      const index = store.index(whereKeys.index);
+      const IDBKey = obtenerIDBKey("=", whereKeys.value); 
+      const query = index.openCursor(IDBKey);
 
       if (typeof fnRuleDelete !== 'function'){
         console.error("No se ha definido una regla de eliminación.")
@@ -338,7 +428,7 @@ const BaseDatosLocal = function() {
               d.resolve(registrosEliminados);
               return; 
             }
-
+            
             if (fnRuleDelete(cursor.value)){
               registrosEliminados++;
               cursor.delete();
@@ -409,9 +499,9 @@ const BaseDatosLocal = function() {
               d.resolve(registrosActualizados);
               return;
             }
+
             registrosActualizados++;
-            var nuevoValor = cursor.value;
-            nuevoValor[objetoActualizar.key] = objetoActualizar.value;
+            var nuevoValor = {...cursor.value, ...objetoActualizar};
             cursor.update(nuevoValor);
             cursor.continue();
           };
