@@ -491,7 +491,7 @@
 	<p>No hay trabajadores disponibles.</p>
 	{{/asistentes}}
 </script> <script id='ListaDiasTrabajoListView-hbs' type='text/template'>{{#.}}
-<li data-id="{{fecha_dia_raw}}" class="table-view-cell {{#if opcion_seleccionada}}btn-appbase{{else}}btn-gray{{/if}}">
+<li data-id="{{fecha_dia_raw}}" class="table-view-cell {{#if opcion_seleccionada}}btn-dayselected{{else}}btn-gray{{/if}}">
 	<a> DÍA: {{fecha_dia}}</a> 
 </li>
 {{/.}}</script> <script id='ListadoLaboresView-hbs' type='text/template'>    	<header class="bar bar-nav">
@@ -567,42 +567,42 @@
                 <span class="icon icon-plus my-float"></i>
             </a>
         </div>
-</script> <script id='LoginView-hbs' type='text/template'>        <header class="bar bar-nav">
-          <div class="btn-bar btn-nav pull-left">
-            <img class="vertical-center" src="assets/img/logo-mini.png"/>
-          </div>
-          <div class="btn-base btn-nav dropdown pull-right" id="btn-sincronizar">
-                SINCRONIZAR
-            </div>
-          <h1 class="title">Log In</h1>
-        </header>
+</script> <script id='LoginView-hbs' type='text/template'><header class="bar bar-nav">
+  <div class="btn-bar btn-nav pull-left">
+    <img class="vertical-center" src="assets/img/logo-mini.jpg"/>
+  </div>
+  <div class="btn-base btn-nav dropdown pull-right" id="btn-sincronizar">
+        SINCRONIZAR
+    </div>
+  <h1 class="title">Log In</h1>
+</header>
 
 <div class="content">
-      <div class="content-padded text-center">
+      <div class="content-padded text-center" style="padding-top:16px">
         <div class="text-center">
           <h3>{{nombre_app}}</h3>
         </div>
-        <img src="assets/img/LOGO.png" class="img-logo-main">
-      </div>
-      <div class="card" style="padding: 16px;">
-        <form>
-              <ul class="table-view">
-                    <li class="table-view-cell text-left">
-                      TRABAJAR CON GPS
-                      <div class="txt-trabajargps toggle {{#if_ is_gps_activated '==' 'true'}}active{{/if_}}">
-                        <div class="toggle-handle"></div>
-                      </div>
-                    </li>
-              </ul>
-              <select required id="txt-seleccionar-empresa">
-                <option value="001" selected>CAYALTI</option>
-                <option value="002">YARAMBAMBA</option>
-              </select> 
-              <hr>
-              <input required type="text" id="txt-login" value="" placeholder="Usuario">
-              <input required type="password" id="txt-clave" value="" placeholder="Clave">
-              <button class="btn btn-block btn-appbase">INGRESAR</button>
-        </form>
+        <img src="assets/img/LogoCayalti.jpg" class="img-logo-main"/>
+        <div class="card" style="padding: 36px;border: 0;">
+          <form>
+                <ul class="table-view">
+                      <li class="table-view-cell text-left">
+                        TRABAJAR GPS
+                        <div class="txt-trabajargps toggle {{#if_ is_gps_activated '==' 'true'}}active{{/if_}}">
+                          <div class="toggle-handle"></div>
+                        </div>
+                      </li>
+                </ul>
+                <select required id="txt-seleccionar-empresa">
+                  <option value="001" selected>CAYALTI</option>
+                  <option value="002">YARAMBAMBA</option>
+                </select> 
+                <hr>
+                <input required type="text" id="txt-login" value="" placeholder="Usuario">
+                <input required type="password" id="txt-clave" value="" placeholder="Clave">
+                <button class="btn btn-block btn-appbase">INGRESAR</button>
+          </form>
+        </div>
       </div>
       
 </div></script> <script id='ModalMensajeComponente-hbs' type='text/template'><header class="bar bar-nav">
