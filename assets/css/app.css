@@ -522,3 +522,22 @@ input.holo.error, input.holo.error {
 .bold {
   font-weight: bold !important;
 }
+
+.toggle.active:before {
+    content: "SI" !important;
+}
+
+.toggle:before {
+    content: "NO" !important;
+}
+
+
+.toggle .toggle-handle {
+    background-color: #ff4444;
+    border: 1px solid #f32b2b;
+}
+
+.toggle.active .toggle-handle {
+    background-color: #5cb85c;
+    border-color: #5cb85c;
+}

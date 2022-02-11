@@ -43,7 +43,6 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                 var fechaRegistroActiva = fecha_dia;
 
                 if (fechaRegistroActiva != null && fechaRegistroActiva != ""){
-                    /*fechaOK*/
                     fechaOK = true;
                     fechaRegistro = _formateoFecha(fecha_dia);
                 } else {

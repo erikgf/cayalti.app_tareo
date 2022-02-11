@@ -17,9 +17,17 @@
       </div>
       <div class="card" style="padding: 16px;">
         <form>
+              <ul class="table-view">
+                    <li class="table-view-cell text-left">
+                      TRABAJAR CON GPS
+                      <div class="txt-trabajargps toggle {{#if_ is_gps_activated '==' 'true'}}active{{/if_}}">
+                        <div class="toggle-handle"></div>
+                      </div>
+                    </li>
+              </ul>
               <select required id="txt-seleccionar-empresa">
                 <option value="001">CAYALTI</option>
-                <option value="002">YARAMBAMBA</option>
+                <option value="002" selected>YARAMBAMBA</option>
               </select> 
               <hr>
               <input required type="text" id="txt-login" value="" placeholder="Usuario">

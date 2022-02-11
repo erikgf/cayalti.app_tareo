@@ -5,10 +5,12 @@ var LoginView = function() {
         SEGUNDOS_VERIFICAR_SINCRO = 2,
         objSincronizador;
 
+    var isGPSActivated = false;
     var $txtEmpresa;
     var objCacheFechaSincro = new CacheComponente(VARS.CACHE.FECHA_SINCRO);
     var objCacheEmpresaSincro = new CacheComponente(VARS.CACHE.EMPRESA_SINCRO);
     var objCacheEmpresa = new CacheComponente(VARS.CACHE.EMPRESA);
+    var objCacheGPS = new CacheComponente(VARS.CACHE.GPS);
 
      this.initialize = function() {
          this.$el = $('<div/>');
@@ -19,10 +21,17 @@ var LoginView = function() {
         this.$el.on("change", "#txt-seleccionar-empresa", this.seleccionarEmpresa);
         this.$el.on("submit","form", this.iniciarSesion);
         this.$el.on("click","#btn-sincronizar", this.verificarSincronizacionUltimaManual);
+        this.$el.on("click", ".txt-trabajargps", this.toggleGPS);   
      };
 
      this.render = function() {
-         this.$el.html(this.template({nombre_app: VARS.NOMBRE_APP}));
+        isGPSActivated = VARS.GET_ISGPSACTIVATED();
+        if (isGPSActivated === null){
+            isGPSActivated = 'true';
+            objCacheGPS.set(isGPSActivated);
+        }
+
+         this.$el.html(this.template({nombre_app: VARS.NOMBRE_APP, is_gps_activated : isGPSActivated}));
          $txtEmpresa = this.$el.find("#txt-seleccionar-empresa");
          if (objCacheEmpresa.get() === null){
             objCacheEmpresa.set($txtEmpresa.val());
@@ -97,10 +106,7 @@ var LoginView = function() {
 
             window.location.hash = "inicio";
           })
-          .fail(function (firstFail, name) {
-            console.log('Fail for: ' + name);
-            console.error(firstFail);
-          });
+          .fail(_UIFail);
     };
 
     var insertarDiaRegistro = function(diaHoy){          
@@ -112,10 +118,7 @@ var LoginView = function() {
           .done(function (res) {
             window.location.hash = "inicio";
           })
-          .fail(function (firstFail, name) {
-            console.log('Fail for: ' + name);
-            console.error(firstFail);
-          });
+          .fail(_UIFail);
     };
 
     var verificarSincronizacionUltima = function(forzar){
@@ -169,15 +172,35 @@ var LoginView = function() {
     };
 
     var checkGPSActivado = function(onCorrecto){
-        isActivatedGPS(
-            onCorrecto, 
-            function noActivado(){
-                alert("¡Debe activar el GPS!");
-                history.back();
-                return;
-            });
+        isGPSActivated = VARS.GET_ISGPSACTIVATED();
+        if (isGPSActivated === null){
+            isGPSActivated = 'true';
+            objCacheGPS.set(isGPSActivated);
+        }
+
+        if (isGPSActivated == 'true'){
+          isActivatedGPS(
+              onCorrecto, 
+              function noActivado(){
+                  alert("¡Debe activar el GPS!");
+                  return;
+              });
+          return;
+        } 
+
+        onCorrecto();
     };
-    
+
+     this.toggleGPS = function(){
+        var isActive = this.classList.contains("active");
+        if (isActive){
+            this.classList.remove("active");    
+        } else {
+            this.classList.add("active");
+        }
+
+        objCacheGPS.set(!isActive);
+    };
 
     this.seleccionarEmpresa = function(){
       objCacheEmpresa.set(this.value);
@@ -194,6 +217,7 @@ var LoginView = function() {
         this.$el.off("change", "#txt-seleccionar-empresa", this.seleccionarEmpresa);
         this.$el.off("submit","form", this.iniciarSesion);
         this.$el.off("click","#btn-sincronizar", this.verificarSincronizacionUltimaManual);
+        this.$el.off("click", ".txt-trabajargps", this.toggleGPS);
 
         this.$el = null;
         self = null;
