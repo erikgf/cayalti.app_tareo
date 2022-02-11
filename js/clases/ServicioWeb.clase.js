@@ -11,6 +11,7 @@ const ServicioWeb = function() {
     var URL_RUTA = VARS.SERVER;
     var URL_RUTA_CONTROLADOR = URL_RUTA+"/controlador/";
     var self = this;
+    var EMPRESA =  VARS.GET_EMPRESA();
 
     this.init = function(){
       return this;
@@ -30,7 +31,7 @@ const ServicioWeb = function() {
                 data: {
                     modelo: "ActualizadorAppLabores", 
                     metodo: "actualizarDatos",
-                    empresa: localStorage.getItem(VARS.NOMBRE_STORAGE+"_EMPRESA")
+                    empresa: EMPRESA
                   },
                 dataType : "json",
                 type: "POST"
@@ -45,7 +46,7 @@ const ServicioWeb = function() {
                       metodo: "enviarDatosNuevo", 
                       data_out:[JSONDataEnviar],
                       data_out:[JSONDataAsistencia, JSONDataTareo], 
-                      empresa : localStorage.getItem(VARS.NOMBRE_STORAGE+"_EMPRESA")
+                      empresa : EMPRESA
                     },
                 dataType : "json",
                 type: "post"

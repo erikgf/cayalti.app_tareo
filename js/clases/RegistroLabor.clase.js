@@ -14,7 +14,7 @@ var RegistroLabor = function(data){
 			this.dni_usuario = data.dni_usuario ?? "";
 		}
 
-		this.idempresa = new CacheComponente("_empresa").get();
+		this.idempresa = VARS.GET_EMPRESA();
 	};
 
 	this.getRegistrosDia = function(){
@@ -67,42 +67,16 @@ var RegistroLabor = function(data){
 															values: [this.fecha_dia, this.dni_usuario, this.idempresa, idlabor, idcampo, idturno]}));
 	};
 
-/*
-return _db.selectData("SELECT la.descripcion as labor, ca.descripcion as campo, "+
-                                " (CASE idtipotareo WHEN 'T' THEN 'POR TAREO' ELSE 'JORNAL' END) as tipo_tareo, "+  
-                                " rl.idturno, "+
-                                " tu.descripcion as turno"+
-                                "   FROM registro_labor rl "+
-                                "   INNER JOIN campo ca ON ca.idcampo = rl.idcampo "+
-                                "   INNER JOIN labor la ON la.idlabor = rl.idlabor "+
-                                "   INNER JOIN turno tu ON tu.idturno = rl.idturno "+
-                                "   WHERE rl.fecha_dia = date(?)  AND  rl.idlabor = ? AND rl.idcampo = ? AND rl.idturno = ?",
-                    [fecha_dia, idlabor, idcampo, idturno]);
-
-*/
-	/*
-    this.obtenerRegistrosLabores = function(fecha_dia, dni_usuario) {
-        var sql = "SELECT rl.id, rl.idlabor, rl.idcampo, rl.idturno, ca.descripcion as campo, "+
-                    " la.descripcion as labor, "+
-                    " a.descripcion as actividad, "+
-                    " t.descripcion as turno, "+
-                    " (CASE idtipotareo WHEN 'T' THEN 'POR TAREO' ELSE 'JORNAL' END) as tipo_tareo, "+
-                    " (SELECT COUNT(id) FROM registro_labor_personal rlp WHERE rlp.fecha_dia = rl.fecha_dia AND rlp.idlabor = rl.idlabor AND rlp.idcampo = rl.idcampo AND rlp.idturno = rl.idturno) as registros_totales "+
-                    " FROM registro_labor rl "+
-                    " INNER JOIN labor la ON rl.idlabor = la.idlabor "+
-                    " INNER JOIN actividad a ON a.idactividad = la.idactividad "+
-                    " INNER JOIN campo ca ON ca.idcampo = rl.idcampo "+
-                    " INNER JOIN turno t ON t.idturno = rl.idturno "+
-                    " WHERE rl.fecha_dia = ? AND dni_usuario = ?"+
-                    " ORDER BY rl.idcampo, la.idactividad, hora_registro DESC";
-
-        return _db.selectData(sql,
-                    [fecha_dia, dni_usuario]);
-    };
-    */
+	this.eliminarRegistroDiaById = function({id}){
+		return $.when(_DB_HANDLER.eliminar(storeName, {index: "id", value: parseInt(id)}, 
+				(objRegistro)=>{
+					return  true;	
+				})
+			);
+	};
 
 	this.limpiar = function(){
-		return $.when(_DB_HANDLER.limpiar(storeName));
+		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: this.idempresa}));
 	};
 
 	return this.init(data);

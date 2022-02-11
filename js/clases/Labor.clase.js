@@ -14,7 +14,7 @@ var Labor = function(data){
 			this.descripcion = data.descripcion ?? "";	
 		}
 
-		this.idempresa = new CacheComponente("_empresa").get();
+		this.idempresa = VARS.GET_EMPRESA();
 	};
 
 	this.getLabor = function() {
@@ -34,7 +34,7 @@ var Labor = function(data){
 	};
 	
 	this.limpiar = function(){
-		return $.when(_DB_HANDLER.limpiar(storeName));
+		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: this.idempresa}));
 	};
 
 	return this.init(data);

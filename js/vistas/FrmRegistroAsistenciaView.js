@@ -187,9 +187,8 @@ var FrmRegistroAsistenciaView = function ({fecha_dia}) {
                             
                             self.mostrarResultado(objBuscado);
 
-                            /*si ya está completo el par, que los marque a ambos como esatado_envio = 1*/
                             if (objBuscado.existe_asistencia >=1 && objBuscado.tipo_registro == "S"){
-                                objRegistroDiaPersonal.marcarRegistrosParaEnvio({estado_envio: "1"});    
+                                objRegistroDiaPersonal.marcarRegistrosParaEnvio({pareados: "1"});    
                             }
                         })
                         .fail(function(e){

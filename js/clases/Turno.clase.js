@@ -16,7 +16,7 @@ var Turno = function(data){
 			this.hora_entrada = data.hora_entrada ?? "";
 			this.hora_salida = data.hora_salida ?? "";
 		}
-		this.idempresa = new CacheComponente("_empresa").get();
+		this.idempresa = VARS.GET_EMPRESA();
 	};
 
 	this.consultar = function(){
@@ -28,7 +28,7 @@ var Turno = function(data){
 	};
 	
 	this.limpiar = function(){
-		return $.when(_DB_HANDLER.limpiar(storeName));
+		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: this.idempresa}));
 	};
 
 	return this.init(data);

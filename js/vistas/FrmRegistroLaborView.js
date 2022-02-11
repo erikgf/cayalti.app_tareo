@@ -38,7 +38,7 @@ var FrmRegistroLaborView = function ({fecha_dia, id_registro_labor_edicion}) {
 	};
 
     this.setDOM = function(){
-        var $dom = this.$el.find(".campos,.actividades,.labores,.turnos,.tipotareo,.bloque-mensaje,.btnguardar"),
+        var $dom = this.$el.find(".campos,.actividades,.labores,.turnos,.tipotareo,.bloque-mensaje,.btnguardar,.btneliminar"),
             itemNumber = 0;
 
         $campos = $dom.eq(itemNumber++);
@@ -48,6 +48,7 @@ var FrmRegistroLaborView = function ({fecha_dia, id_registro_labor_edicion}) {
         $tipotareo = $dom.eq(itemNumber++);
         $bloqueMensaje = $dom.eq(itemNumber++);
         $btnguardar = $dom.eq(itemNumber++);
+        $btneliminar = $dom.eq(itemNumber++);
         
         $dom = null;
     };
@@ -94,6 +95,11 @@ var FrmRegistroLaborView = function ({fecha_dia, id_registro_labor_edicion}) {
         })
     };
 
+    var _clickEliminar = function(e){
+        e.preventDefault();
+        self.eliminar();
+    };
+
     var imprimirAlerta = function(texto, tipoMensaje){       
         $bloqueMensaje.html("<small>"+texto+"</small>");
         $bloqueMensaje.addClass(tipoMensaje);
@@ -119,12 +125,11 @@ var FrmRegistroLaborView = function ({fecha_dia, id_registro_labor_edicion}) {
    };  
 
     this.setEventos = function(){
-        //$actividades.on("change", _changeActividad);
         $btnguardar.on("click", _clickGuardar);
-
         $campos.on("click", _activateCampo);
         $actividades.on("click", _activateActividad);
         $labores.on("click", _activateLabor);
+        $btneliminar.on("click", _clickEliminar);
     };
 
     this.consultarUI = function(){
@@ -155,7 +160,7 @@ var FrmRegistroLaborView = function ({fecha_dia, id_registro_labor_edicion}) {
                     var UIObtenerRegistroLabor = !resultado.UIObtenerRegistroLabor.length ? null : resultado.UIObtenerRegistroLabor[0];
 
                     if (!UIObtenerRegistroLabor){
-                        $btnguardar.html("EDITAR");
+                        $btnguardar.html("GUARDAR");
                         return;
                     }
 
@@ -168,6 +173,7 @@ var FrmRegistroLaborView = function ({fecha_dia, id_registro_labor_edicion}) {
 
                     self.consultarUILabores(UIObtenerRegistroLabor.idactividad, UIObtenerRegistroLabor.idlabor);
                     $btnguardar.html("EDITAR");
+                    $btneliminar.removeClass("escondido");
                 }
 
                 })
@@ -297,11 +303,36 @@ var FrmRegistroLaborView = function ({fecha_dia, id_registro_labor_edicion}) {
             });
     };
 
+    this.eliminar = function(){
+        if (id_registro_labor_edicion == ""){
+            return;
+        }
+        let fnEliminar = function(){
+            var objReq = {
+                eliminarRegistroLabor:  new RegistroLabor({fecha_dia: fecha_dia, dni_usuario: dni_usuario_registrando})
+                            .eliminarRegistroDiaById({id: id_registro_labor_edicion}),
+                eliminarRegistroLaborPersonal: new RegistroLaborPersonal({fecha_dia: fecha_dia, dni_usuario_registrando})
+                            .eliminarRegistrosDiaByIdRegistroLabor({idregistrolabor: id_registro_labor_edicion})
+            };
+
+            $.whenAll(objReq)
+                .done(function(resultado){
+                    console.log(resultado);
+                    alert("Registro eliminado correctamente.");
+                    history.back();
+                })
+                .fail(_UIFail);
+        };
+
+        confirmar("¿Estas seguro de eliminar esta labor?", fnEliminar);
+    };
+
     this.destroy = function(){
         $actividades.off("click", _activateActividad);
         $campos.off("click", _activateCampo);
         $labores.off("click", _activateLabor);
         $btnguardar.off("click", _clickGuardar);
+        $btneliminar.off("click", _clickEliminar);
 
         if (objModalPicker){
             objModalPicker.destroy();

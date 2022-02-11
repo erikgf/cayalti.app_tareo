@@ -18,6 +18,7 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
     var MAX_HORAS_DIA = 14;
     var isGPSActivated = VARS.GET_ISGPSACTIVATED() == "true";
     var dni_usuario_ingresando = DATA_NAV.usuario.dni;
+    var idregistrolabor = null;
 
     this.initialize = function () {
         this.$el = $('<div/>');
@@ -133,6 +134,9 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
                             history.back();
                             return;
                         }
+
+
+                        idregistrolabor = uiCabecera.id;
 
                         self.$el.html(self.template({fecha_registro : _formateoFecha(fecha_dia), 
                                                         imagen_icon: VARS.GET_ICON(),
@@ -277,7 +281,7 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
                 return {
                     dni_personal: item.dni_personal,
                     nombres_apellidos: item.nombres_apellidos,
-                    hora_registro: hora_registro,
+                    hora_registro: hora_registro
                 };
         });
 
@@ -310,7 +314,8 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
                     idcampo: idcampo,
                     numero_horas_diurno : numDiurno,
                     numero_horas_nocturno: numNocturno,
-                    objLatitudLongitud : objLatitudLongitud
+                    objLatitudLongitud : objLatitudLongitud,
+                    idregistrolabor: idregistrolabor
                 })
                 .done(function(resultado){
                     self.listarListas();

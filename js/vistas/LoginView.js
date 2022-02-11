@@ -3,35 +3,16 @@ var LoginView = function() {
         _CLICKS = 0,
         SINCRO_AUTO = true,
         SEGUNDOS_VERIFICAR_SINCRO = 2,
-        objSincronizador,
-        getHoy = _getHoy;
+        objSincronizador;
 
     var $txtEmpresa;
+    var objCacheFechaSincro = new CacheComponente(VARS.CACHE.FECHA_SINCRO);
+    var objCacheEmpresaSincro = new CacheComponente(VARS.CACHE.EMPRESA_SINCRO);
+    var objCacheEmpresa = new CacheComponente(VARS.CACHE.EMPRESA);
 
      this.initialize = function() {
          this.$el = $('<div/>');
          this.setEventos();
-         if (SINCRO_AUTO){
-          setTimeout(function(){
-              var fechaUltima = localStorage.getItem(VARS.NOMBRE_STORAGE+"_FECHA");
-              if (!(fechaUltima == null || getHoy() != fechaUltima)){
-                  return;
-              }
-
-              var empresaSincronizada = localStorage.getItem(VARS.NOMBRE_STORAGE+"_EMPRESASINCRONIZADA");
-              if (empresaSincronizada == $("#txt-seleccionar-empresa").val() ){
-                return;
-              }
-
-              confirmar("Se realizará una sincronización automática, esta seguro de continuar? Si hay datos no enviados, serán eliminados.", 
-                function(){
-                  self.verificarSincronizacionUltimaAuto();  
-                },
-                function(){
-                  self.asignarFechaSincronizacionHoy();
-                });
-           }, SEGUNDOS_VERIFICAR_SINCRO * 1000); 
-         }
      };
 
      this.setEventos = function(){
@@ -42,7 +23,29 @@ var LoginView = function() {
 
      this.render = function() {
          this.$el.html(this.template({nombre_app: VARS.NOMBRE_APP}));
-         $("#txt-seleccionar-empresa").val(localStorage.getItem(VARS.NOMBRE_STORAGE+"_EMPRESA"));
+         $txtEmpresa = this.$el.find("#txt-seleccionar-empresa");
+         if (objCacheEmpresa.get() === null){
+            objCacheEmpresa.set($txtEmpresa.val());
+         } else{
+            $txtEmpresa.val(objCacheEmpresa.get()); 
+         }
+         
+         if (SINCRO_AUTO){
+          setTimeout(function(){
+              var fechaSincroUltima = objCacheFechaSincro.get();
+              if (!(fechaSincroUltima == null || _getHoy() != fechaSincroUltima)){
+                  return;
+              }
+
+              var empresaSincronizada = objCacheEmpresaSincro.get();
+              if (empresaSincronizada == $("#txt-seleccionar-empresa").val() ){
+                return;
+              }
+
+              self.verificarSincronizacionUltimaAuto(); 
+           }, SEGUNDOS_VERIFICAR_SINCRO * 1000); 
+         }
+         
          return this;
      };
 
@@ -55,7 +58,6 @@ var LoginView = function() {
                 _clave = $form.find("#txt-clave").val(),
                 _empresa  = $form.find("#txt-seleccionar-empresa").val();
 
-
             new Usuario().iniciarSesion(_login, md5(_clave))
                 .done( function( resultado ){
                     if (resultado.length > 0){
@@ -63,7 +65,7 @@ var LoginView = function() {
                         DATA_NAV.usuario = resultado[0];
 
                         localStorage.setItem(VARS.NOMBRE_STORAGE, JSON.stringify(DATA_NAV));
-                        new CacheComponente("_empresa").set(_empresa);
+                        objCacheEmpresa.set(_empresa);
 
                         router.load("inicio");
                     } else {
@@ -79,7 +81,7 @@ var LoginView = function() {
      };
 
      var consultarDiasRegistro = function(){       
-        var diaHoy = getHoy(),
+        var diaHoy = _getHoy(),
             reqObj = {
              consultar_existencia_dia: servicio.consultarExistenciaDia(diaHoy)
             };
@@ -121,22 +123,30 @@ var LoginView = function() {
             si no hay, o no es la fecha acual
                 FORCE SINCRO
             si hay DO NOTHING*/
-        var empresaSeleccionada = localStorage.getItem(VARS.NOMBRE_STORAGE,"_EMPRESA");
-        if ( empresaSeleccionada === "" ||  empresaSeleccionada === undefined){
-          alert("No se ha seleccionado EMPRESA.");
-          return;
-        }
+        var empresaSeleccionada = objCacheEmpresa.get();
 
-        var fechaUltima, hoy;
+        if ( empresaSeleccionada === "" || empresaSeleccionada == null || empresaSeleccionada === undefined){
+          empresaSeleccionada = self.$el.find("#txt-seleccionar-empresa").val();
+          if ( empresaSeleccionada === undefined ){
+            alert("No se ha seleccionado EMPRESA.");
+            return;
+          }
+        }
+        objCacheEmpresa.set(empresaSeleccionada);
+
+        var fechaUltima, hoy = _getHoy();
         objSincronizador = new Sincronizador(["Usuario", "Actividad", "Campo","Labor", "Personal","Turno"]);
+        objSincronizador.setCallBackFinish(function(){
+          objCacheFechaSincro.set(hoy);
+          objCacheEmpresaSincro.set(empresaSeleccionada);
+        });
 
         if (forzar == true){
             objSincronizador.sincronizarDatos();
             return;
         }
 
-        fechaUltima = localStorage.getItem(VARS.NOMBRE_STORAGE+"_FECHA");
-        hoy = getHoy();
+        fechaUltima = objCacheFechaSincro.get();
 
         if (fechaUltima == null || hoy != fechaUltima){
             objSincronizador.sincronizarDatos();
@@ -158,10 +168,6 @@ var LoginView = function() {
         }
     };
 
-    this.asignarFechaSincronizacionHoy = function(){
-      localStorage.setItem(VARS.NOMBRE_STORAGE+"_FECHA",getHoy());
-    };
-
     var checkGPSActivado = function(onCorrecto){
         isActivatedGPS(
             onCorrecto, 
@@ -174,7 +180,7 @@ var LoginView = function() {
     
 
     this.seleccionarEmpresa = function(){
-      localStorage.setItem(VARS.NOMBRE_STORAGE+"_EMPRESA", this.value);
+      objCacheEmpresa.set(this.value);
       self.verificarSincronizacionUltimaManual();
     };
 
@@ -182,8 +188,9 @@ var LoginView = function() {
         if (objSincronizador){
             objSincronizador.destroy();
             objSincronizador = null;
-        }
+        } 
 
+        $txtEmpresa = null;
         this.$el.off("change", "#txt-seleccionar-empresa", this.seleccionarEmpresa);
         this.$el.off("submit","form", this.iniciarSesion);
         this.$el.off("click","#btn-sincronizar", this.verificarSincronizacionUltimaManual);

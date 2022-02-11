@@ -16,7 +16,7 @@ var RegistroLaborPersonal = function(data){
 			this.dni_usuario = data.dni_usuario ?? "";
 		}
 
-		this.idempresa = new CacheComponente("_empresa").get();
+		this.idempresa = VARS.GET_EMPRESA();
 	};
 
 	this.getRegistrosDia = function(){
@@ -29,7 +29,7 @@ var RegistroLaborPersonal = function(data){
 															values: [this.fecha_dia, this.dni_usuario, this.idempresa, idcampo, idlabor, idturno]}));
 	};
 
-	this.registrarMultiple = function({arreglo_personal, idturno, idlabor, idcampo, numero_horas_diurno, numero_horas_nocturno, objLatitudLongitud}){
+	this.registrarMultiple = function({arreglo_personal, idturno, idlabor, idcampo, numero_horas_diurno, numero_horas_nocturno, objLatitudLongitud, idregistrolabor}){
 		var objNuevoRegistros = arreglo_personal.map((item)=>{
 			return {
 				...item,
@@ -42,16 +42,25 @@ var RegistroLaborPersonal = function(data){
 			    numero_horas_diurno : numero_horas_diurno,
 			    numero_horas_nocturno: numero_horas_nocturno,
 			    latitud: objLatitudLongitud.latitud,
-			    longitud: objLatitudLongitud.longitud
+			    longitud: objLatitudLongitud.longitud,
+			    idregistrolabor : idregistrolabor,
+			    estado_envio: "0"
 			};
 		});
 
 		return $.when(_DB_HANDLER.registrar(storeName, objNuevoRegistros));
 	};
 
+	this.eliminarRegistrosDiaByIdRegistroLabor = function({idregistrolabor}){
+		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idregistrolabor", value: parseInt(idregistrolabor)}, 
+				(objRegistro)=>{
+					return  true;	
+				})
+			);
+	};
 
 	this.limpiar = function(){
-		return $.when(_DB_HANDLER.limpiar(storeName));
+		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: this.idempresa}));
 	};
 
 	return this.init(data);

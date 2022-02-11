@@ -47,7 +47,7 @@ var onDeviceReady = function () {
         servicio_web = new AgriServicioWeb(),
         servicio_frm = new AgriServicioFrm();
     */
-    SERVICIO_GPS = new GPSServicio();
+    SERVICIO_GPS = new GPSProvider();
 
         /*
     servicio_frm.initialize(db);

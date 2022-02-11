@@ -11,7 +11,7 @@ var RegistroDia = function(data){
 			this.fecha_dia = data.fecha_dia ?? "";
 		}
 
-		this.idempresa = new CacheComponente("_empresa").get();
+		this.idempresa = VARS.GET_EMPRESA();
 	};
 
 	this.getRegistroDias = function(){
@@ -50,7 +50,7 @@ var RegistroDia = function(data){
 	};
 
 	this.limpiar = function(){
-		return $.when(_DB_HANDLER.limpiar(storeName));
+		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: this.idempresa}));
 	};
 
 	return this.init(data);

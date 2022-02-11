@@ -1,4 +1,4 @@
-var GPSServicio = function() {
+var GPSProvider = function() {
 	var _latitud = "0";
 		_longitud = "0",
 		_tiempoLoop  = 60,/*segundos*/

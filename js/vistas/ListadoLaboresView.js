@@ -42,18 +42,6 @@ var ListadoLaboresView = function ({fecha_dia}) {
 	    return this;
 	};
 
-	var UIDone = function (res) {
-            
-        },
-        UIFail = function (firstFail, name) {
-            console.log('Fail for: ' + name);
-            console.error(firstFail);
-        },
-        eliminarDone = function (res) {
-            alert("Día eliminado.");
-            history.back();
-        };
-
 	this.consultarUI = function(){
 		/*consultamos cultivos (de este usuario*/
 		var reqObj = {
@@ -63,11 +51,32 @@ var ListadoLaboresView = function ({fecha_dia}) {
 
         $.whenAll(reqObj)
               .done(function(resultado){
+                var registrosDiaLaborPersonal = resultado.obtenerRegistrosDiaLaborPersonal;
 
+                let objProcesarArreglo;
                 let listado_labores = resultado.obtenerRegistrosDiaLabor.map(function(item){
-                    return {...item, registros_totales: 0};
-                });
+                    
+                    objProcesarArreglo = _fnSepararArregloSegunCriterio(registrosDiaLaborPersonal, 
+                                                                            function(o){
+                                                                                return o.idregistrolabor === item.id;
+                                                                            });
+                    registrosDiaLaborPersonal = objProcesarArreglo.nocumplen;
 
+                    return {
+                        id: item.id,
+                        campo: item.campo,
+                        actividad: item.actividad,
+                        idactividad: item.idactividad,
+                        idcampo: item.idcampo,
+                        idempresa: item.idempresa,
+                        idlabor: item.idlabor,
+                        idtipotareo: item.idtipotareo,
+                        idturno: item.idturno,
+                        labor: item.labor,
+                        turno: item.turno,
+                        registros_totales: objProcesarArreglo.cumplen.length
+                    }
+                });
 
                 self.$el.html(self.template({
                     nombre_usuario: DATA_NAV.usuario.nombres_apellidos,
@@ -97,8 +106,12 @@ var ListadoLaboresView = function ({fecha_dia}) {
 
     this.destroy = function(){
         $fecha = null;
-        $content = null;
 
+        $content.off("mouseup mouseleave touchend");
+        $content.off("mousedown touchstart");
+        $content.off("click");
+
+        $content = null;
         $actualContainer = null;
         $actualTab = null;
 

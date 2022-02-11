@@ -7,7 +7,7 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
         $actualTab, $actualContainer,
         modalMensaje;
 
-    var objCacheComponente = new CacheComponente("_GPS");
+    var objCacheComponente = new CacheComponente(VARS.CACHE.GPS);
 
 	this.initialize = function () {
         this.$el = $('<div/>');       
@@ -40,7 +40,7 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
           .done(function(resultado){
                 var registrosDiasPersonal = resultado.getRegistroDiasPersonal;
                 var registrosLaboresPersonal = resultado.getRegistroLaborPersonal;
-                var fechaRegistroActiva = fecha_dia;   
+                var fechaRegistroActiva = fecha_dia;
 
                 if (fechaRegistroActiva != null && fechaRegistroActiva != ""){
                     /*fechaOK*/
@@ -57,17 +57,20 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                     objCacheComponente.set(isGPSActivated);
                 }
 
-                //aqui falta calcular los que tengan estado_envio == 1 para que se dibujen como PENDIENTES de envio.
+                const filter = function(item){
+                   return item.estado_envio == "1"
+                };
 
+                //aqui falta calcular los que tengan estado_envio == 0 para que se dibujen como PENDIENTES de envio.
                 self.$el.html(self.template({
                     imagen_icon: VARS.GET_ICON(),
                     is_gps_activated : isGPSActivated,
                     nombre_usuario: DATA_NAV.usuario.nombres_apellidos,
                     fecha_registro: fechaRegistro,
                     fecha_registro_raw : fecha_dia,
-                    registros_pendientes_envio: 0,
+                    registros_pendientes_envio: registrosDiasPersonal.filter(filter).length,
                     registros_totales : registrosDiasPersonal.length,
-                    registros_pendientes_tareo_envio: 0,//getRegistroLaborPersonal.registros_pendientes_tareo_envio,
+                    registros_pendientes_tareo_envio: registrosLaboresPersonal.filter(filter).length,
                     registros_tareo_totales : registrosLaboresPersonal.length,
                 })); 
 

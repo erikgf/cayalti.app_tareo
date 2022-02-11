@@ -16,7 +16,7 @@ var Personal = function(data){
 			this.idplanilla = data.idplanilla ?? "";
 		}
 
-		this.idempresa = new CacheComponente("_empresa").get();
+		this.idempresa = VARS.GET_EMPRESA();
 	};
 
 	this.obtenerRegistro = function(){
@@ -28,7 +28,7 @@ var Personal = function(data){
 	};
 	
 	this.limpiar = function(){
-		return $.when(_DB_HANDLER.limpiar(storeName));
+		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: this.idempresa}));
 	};
 
 	this.listar = function(){

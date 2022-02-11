@@ -18,7 +18,7 @@ var RegistroDiaPersonal = function(data){
 			this.dni_personal = data.dni_personal ?? "";
 		}
 
-		this.idempresa = new CacheComponente("_empresa").get();
+		this.idempresa = VARS.GET_EMPRESA();
 	};
 
 	this.getRegistrosDia = function(){
@@ -73,20 +73,22 @@ var RegistroDiaPersonal = function(data){
 			idempresa : this.idempresa,
 			hora_registro: hora_registro,
 			estado_envio: "0",
+			pareados: "0",
 			idempresa : this.idempresa
 		});
 
 		return $.when(_DB_HANDLER.registrar(storeName, objNuevoRegistro));
 	};
 
-	this.marcarRegistrosParaEnvio = function({estado_envio}){
-		return $.when(_DB_HANDLER.actualizar(storeName, "=", "fecha_dia,dni_personal,idempresa", [this.fecha_trabajo,this.dni_personal,this.idempresa], null,
-					{estado_envio: estado_envio}));
+	this.marcarRegistrosParaEnvio = function({pareados}){
+		return $.when(_DB_HANDLER.actualizar(storeName, "=", "fecha_dia,dni_personal,idempresa", 
+					[this.fecha_dia,this.dni_personal,this.idempresa], null,
+					{pareados: pareados}));
 	};
 	
 
 	this.limpiar = function(){
-		return $.when(_DB_HANDLER.limpiar(storeName));
+		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: this.idempresa}));
 	};
 
 	return this.init(data);
