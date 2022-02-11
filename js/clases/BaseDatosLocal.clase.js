@@ -9,7 +9,7 @@ const BaseDatosLocal = function() {
     5.- Enviar informacion
     */
     var DB_NOMBRE = "bd_asistencia_labores_cayalti";
-    var VERSION = 3;
+    var VERSION = 6;
     var self = this;
     var db;
 
@@ -210,6 +210,30 @@ const BaseDatosLocal = function() {
       return;
     };
 
+    this.upgradeVersion_4 = function(db, tx){
+      let store = tx.objectStore("RegistroDiaPersonal");   
+      store.createIndex('fecha_dia,idempresa', ['fecha_dia','idempresa']); 
+
+      store = tx.objectStore("RegistroLabor");
+      store.createIndex('fecha_dia,idempresa', ['fecha_dia','idempresa']); 
+      return;
+    };
+
+     this.upgradeVersion_5 = function(db, tx){
+      let store = tx.objectStore("RegistroDiaPersonal");   
+      store.createIndex('fecha_dia,estado_envio,idempresa', ['fecha_dia','estado_envio','idempresa']); 
+
+      store = tx.objectStore("RegistroLaborPersonal");
+      store.createIndex('fecha_dia,estado_envio,idempresa', ['fecha_dia','estado_envio','idempresa']); 
+      return;
+    };
+
+    this.upgradeVersion_6 = function(db, tx){
+      let store = tx.objectStore("RegistroLaborPersonal");
+      store.createIndex('fecha_dia,dni_personal,idlabor,idcampo,idturno,idempresa', ['fecha_dia','dni_personal','idlabor','idcampo','idturno','idempresa']); 
+      return;
+    };
+    
 
     this.registrar = function(storeName, data){
       var transaction = db.transaction(storeName, 'readwrite');

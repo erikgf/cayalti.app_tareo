@@ -3,15 +3,15 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
 		fechaOK = false,
         $content,
         $fecha,
-        //$turno,
         $actualTab, $actualContainer,
         modalMensaje;
 
     var objCacheComponente = new CacheComponente(VARS.CACHE.GPS);
+    var usuario_enviando = DATA_NAV.usuario;
 
 	this.initialize = function () {
         this.$el = $('<div/>');       
-        if (ACTUAL_PAGE != null && (typeof ACTUAL_PAGE.destroy == "function")){
+        if (ACTUAL_PAGE != null && (typeof ACTUAL_PAGE.destroy === "function")){
             ACTUAL_PAGE.destroy();
         }
         ACTUAL_PAGE = this;
@@ -105,9 +105,9 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
 
             var reqObj = {
                  eliminarRegistroDia: new RegistroDia({fecha_dia: fecha_dia}).eliminarRegistroDia(),
-                 //eliminarRegistroDiaPersonal : new RegistroDiaPersonal({fecha_dia: fecha_dia}).eliminarRegistroDiaPersonal(),
-                 //eliminarRegistroLabor : new RegistroLabor({fecha_dia: fecha_dia}).eliminarRegistroLabor(),
-                 //eliminarRegistroLaborPersonal : new RegistroLaborPersonal({fecha_dia: fecha_dia}).eliminarRegistroLaborPersonal()
+                 eliminarRegistroDiaPersonal : new RegistroDiaPersonal({fecha_dia: fecha_dia}).eliminarRegistroDiaPersonal(),
+                 eliminarRegistroLabor : new RegistroLabor({fecha_dia: fecha_dia}).eliminarRegistroLabor(),
+                 eliminarRegistroLaborPersonalFecha : new RegistroLaborPersonal({fecha_dia: fecha_dia}).eliminarRegistroLaborPersonalFecha()
             };
 
             $.whenAll(reqObj)
@@ -138,16 +138,37 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
 
     this.procesarEnviarDatos = function(){
         var reqObj = {
-              datos_asistencia: servicio_frm.obtenerRegistrosAsistencia(fecha_dia),
-             // datos_tareo: servicio_frm.obtenerRegistrosTareo(fecha_dia, $turno.val()),
-              datos_tareo: servicio_frm.obtenerRegistrosTareo(fecha_dia),
+              datos_asistencia: new RegistroDiaPersonal({fecha_dia: fecha_dia}).obtenerRegistrosAsistencia(),
+              datos_tareo: new RegistroLaborPersonal({fecha_dia: fecha_dia}).obtenerRegistrosTareo()
             };
 
         $.whenAll(reqObj)
-          .done(function (res) {
-            var datos_asistencia = rs2Array(res.datos_asistencia.rows),
-                datos_tareo = rs2Array(res.datos_tareo.rows),
-                JSONAsistencia, JSONTareo;
+          .done(function (resultado) {
+            var JSONAsistencia, JSONTareo;
+            var datos_asistencia = resultado.datos_asistencia.map(function(item){
+                    return {
+                            dni_personal: item.dni_personal,
+                            hora_registro: item.hora_registro,
+                            tipo_registro: item.tipo_registro,
+                            numero_acceso: item.numero_acceso,
+                            dni_usuario: item.dni_usuario,
+                            latitud: item.latitud,
+                            longitud: item.longitud
+                        };
+                }),
+                datos_tareo = resultado.datos_tareo.map(function(item){
+                    return {
+                            idlabor: item.idlabor,
+                            idcampo: item.idcampo,
+                            dni_personal: item.dni_personal,
+                            idturno: item.idturno,
+                            hora_registro: item.hora_registro,
+                            latitud: item.latitud,
+                            longitud: item.longitud,
+                            numero_horas_diurno: item.numero_horas_diurno,
+                            numero_horas_nocturno: item.numero_horas_nocturno
+                        };
+                });
 
             if (!datos_asistencia.length && !datos_tareo.length){
                alert("No hay registros para enviar.");
@@ -155,7 +176,6 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
             }
 
             try{
-
                 if (datos_asistencia.length > 0){
                     JSONAsistencia = JSON.stringify(procesarDatosAsistencia(datos_asistencia));
                 } else {
@@ -167,7 +187,6 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                 } else {
                     JSONTareo = "";
                 }
-
             } catch(e){
                 console.error("JSON Error", e);
             } 
@@ -178,8 +197,7 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
     };
 
     var procesarDatosAsistencia = function(datos){
-        var usuario_envio = usuario.usuario,
-            arrDetalle = [],
+        var arrDetalle = [],
             idmovil = getDevice(),
             objEnvioCultivo;
 
@@ -190,7 +208,7 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                     tipo_registro: o.tipo_registro,
                     hora_registro: o.hora_registro,
                     numero_asistencia: o.numero_acceso,
-                    dni_usuario : o.usuario_envio,
+                    dni_usuario : o.dni_usuario,
                     latitud: o.latitud,
                     longitud: o.longitud
                 });
@@ -199,7 +217,7 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
         objEnvioCultivo = {
                     detalle : arrDetalle,
                     cabecera : {
-                        usuario_envio : usuario_envio,
+                        usuario_envio : usuario_enviando.usuario,
                         fecha_dia_envio : fecha_dia,
                         idmovil : idmovil
                     }
@@ -210,10 +228,10 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
 
     var procesarDatosTareo = function(datos){
         /*procesar 3 detalles*/
-        var usuario_envio = usuario.usuario,
-            codigo_general_usuario_envio = usuario.dni,
-            nombres_apellidos_usuario_envio = usuario.nombre_usuario,
-            idresponsable = usuario.idresponsable,
+        var usuario_envio = usuario_enviando.usuario,
+            codigo_general_usuario_envio = usuario_enviando.dni,
+            nombres_apellidos_usuario_envio = usuario_enviando.nombres_apellidos,
+            idresponsable = usuario_enviando.idresponsable,
             arrDetalle = [],
             objDetalle = {},
             arrDetalleDetalle = [],
@@ -235,7 +253,6 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                     idturno: o.idturno
                 };
             }
-
 
             if (keyUltimo != null && keyUltimo != keyTemporal){
                 objDetalle.detalle = arrDetalleDetalle;
@@ -273,7 +290,6 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                         usuario_envio : usuario_envio,
                         idresponsable : idresponsable,
                         fecha_dia_envio : fecha_dia,
-                        //idturno : $turno.val(),
                         idmovil : idmovil
                     }
                 };
@@ -288,7 +304,7 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
         modalMensaje = new ModalMensajeComponente().initRender({titulo: "Enviando datos...", texto_informacion: "Enviando información al servidor. Espere."});
         modalMensaje.mostrar();
 
-        $.when( servicio_web.enviarDatos(JSONDataAsistencia, JSONDataTareo)
+        new ServicioWeb().enviarDatos(JSONDataAsistencia, JSONDataTareo)
                 .done( function(r){                 
                     if (r.rpt){ 
                         modalMensaje.esconder();
@@ -308,22 +324,19 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                 })
                 .fail(function(error){
                     modalMensaje.mostrarError(error.message);
-                })
-            );
+                });
     };
 
     this.marcarRegistrosEnviados = function(){
-        /*eliminar data idcultivo + fecha  ponerles estados de OK*/
         var reqObj = {
-              marcar_registros_asistencia: servicio_frm.marcarRegistrosAsistenciaEnviados(fecha_dia),
-              //marcar_registros_tareo: servicio_frm.marcarRegistrosTareoEnviados(fecha_dia, $turno.val())
-              marcar_registros_tareo: servicio_frm.marcarRegistrosTareoEnviados(fecha_dia)
+              marcar_registros_asistencia: new RegistroDiaPersonal({fecha_dia: fecha_dia}).marcarRegistrosAsistenciaEnviados({estado_envio: '1'}),
+              marcar_registros_tareo: new RegistroLaborPersonal({fecha_dia: fecha_dia}).marcarRegistrosTareoEnviados({estado_envio: '1'})
             };
 
         $.whenAll(reqObj)
-          .done(function (res) {
-            var marcarRegistros = parseInt(res.marcar_registros_asistencia.rowsAffected) + parseInt(res.marcar_registros_tareo.rowsAffected);
-             alert(marcarRegistros+ " registros enviados.");
+          .done(function (resultado) {
+                var marcarRegistros = parseInt(resultado.marcar_registros_asistencia) + parseInt(resultado.marcar_registros_tareo);
+                alert(marcarRegistros+ " registros enviados.");
           })
           .fail(_UIFail);
     };

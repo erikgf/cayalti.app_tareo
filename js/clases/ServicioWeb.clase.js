@@ -44,7 +44,6 @@ const ServicioWeb = function() {
                 data: {
                       modelo: "ActualizadorAppLabores", 
                       metodo: "enviarDatosNuevo", 
-                      data_out:[JSONDataEnviar],
                       data_out:[JSONDataAsistencia, JSONDataTareo], 
                       empresa : EMPRESA
                     },

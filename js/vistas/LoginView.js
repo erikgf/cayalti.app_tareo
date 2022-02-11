@@ -204,7 +204,6 @@ var LoginView = function() {
 
     this.seleccionarEmpresa = function(){
       objCacheEmpresa.set(this.value);
-      self.verificarSincronizacionUltimaManual();
     };
 
     this.destroy = function(){

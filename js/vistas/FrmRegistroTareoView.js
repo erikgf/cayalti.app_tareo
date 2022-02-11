@@ -325,59 +325,60 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
     };
 
     this.editarNumeroHoras = function($input){
-        var numHoras = $input.value,
-            numeroDNI = $input.dataset.dni,
-            horasNocturno = -1,
-            horasDiurno = -1;
+        var numero_horas = $input.value,
+            dni_personal = $input.dataset.dni,
+            numero_horas_nocturno = -1,
+            numero_horas_diurno = -1;
 
+            
         if (idturno != "03"){
-            if (numHoras == "" || numHoras <= "0"){
+            if (numero_horas == "" || numero_horas <= "0"){
                 $input.value = "8";
-                numHoras = "8";
+                numero_horas = "8";
             }  
         } else {
-            if (numHoras == "" || numHoras < "0"){
+            if (numero_horas == "" || numero_horas < "0"){
                 $input.value = "0";
-                numHoras = "0";
+                numero_horas = "0";
             }  
         }
        
 
         switch(idturno){
             case "01":
-                horasDiurno = numHoras;
+                numero_horas_diurno = numero_horas;
             break;
             case "02":
-                horasNocturno = numHoras;
+                numero_horas_nocturno = numero_horas;
             break;
             case "03":
                 if ($input.classList.contains("horas-dos")){
-                    horasNocturno = numHoras;
+                    numero_horas_nocturno = numero_horas;
                 } else{
-                    horasDiurno = numHoras;
+                    numero_horas_diurno = numero_horas;
                 }
             break;
         }
 
+        new RegistroLaborPersonal({fecha_dia: fecha_dia, dni_personal: dni_personal}).editarNumHorasLaborPersonal({
+                                                                    numero_horas_diurno: numero_horas_diurno,  
+                                                                    numero_horas_nocturno: numero_horas_nocturno,
+                                                                    idturno: idturno,
+                                                                    idlabor: idlabor,
+                                                                    idcampo: idcampo})
+                .done(function(resultado){
+                        $span = $input.nextElementSibling;
+                        $span.classList.remove("escondido");
+                        setTimeout(function(){
+                            $span.classList.add("escondido");
+                            $span = null;
+                        },800);
 
-        var reqObj = {
-            RQEditarNumeroHoras : servicio_frm.editarNumHorasLaborPersonal(horasDiurno, horasNocturno, idturno, numeroDNI, fecha_dia, idlabor, idcampo)
-        };
-
-        $.whenAll(reqObj)
-          .done(function(res){
-                    $span = $input.nextElementSibling;
-                    $span.classList.remove("escondido");
-                    setTimeout(function(){
-                        $span.classList.add("escondido");
-                        $span = null;
-                    },800);
-
-                    $input = null;
-                })
-          .fail(function(e){
-                console.error(e);    
-            });
+                        $input = null;
+                    })
+                .fail(function(e){
+                    console.error(e);    
+                });
     };
 
     this.editarNumeroHorasDiurnoNocturnoCabecera = function($input){
@@ -412,23 +413,15 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
         }
     };
 
-    this.eliminarRegistroLaborPersonal = function(numeroDNI, nombres){ 
-        var objReg = {
-              dni_personal: numeroDNI, 
-              fecha_dia : fecha_dia, 
-              idlabor : idlabor, 
-              idcampo : idcampo
-            },reqObj = {
-            RQEliminar : servicio_frm.eliminarRegistroLaborPersonal(objReg)
-        };
-
-        $.whenAll(reqObj)
-          .done(function(res){
-                    self.listarListas();
-                })
-          .fail(function(e){
-                console.error(e);    
-            });
+    this.eliminarRegistroLaborPersonal = function(dni_personal, nombres){ 
+        new RegistroLaborPersonal({fecha_dia: fecha_dia, dni_personal: dni_personal})
+                    .eliminarRegistroLaborPersonal({ idlabor: idlabor, idcampo: idcampo, idturno: idturno})
+                    .done(function(res){
+                            self.listarListas();
+                        })
+                    .fail(function(e){
+                            console.error(e);    
+                        });
     };
 
     this.swapTab = function(e){

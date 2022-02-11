@@ -41,16 +41,16 @@
 					<div class="table-view-row table-view-row-absolute" style="position: relative;height: 40px;">
 					{{#if_ numero_horas_diurno '!=' ''}}
 						<div>Horas Diurno</div>
-						<input type="number" data-dni="{{dni}}" class="holo text-center horas-uno" value="{{numero_horas_diurno}}">
+						<input type="number" data-dni="{{dni_personal}}" class="holo text-center horas-uno" value="{{numero_horas_diurno}}">
 						<span class="escondido label-guardado btn-appbase"> <span class="icon icon-check"></span></span>
 					{{/if_}}
-					<button data-dni="{{dni}}" data-nombres="{{nombres_apellidos}}" class="bg-rojo btn btn-sm "><span class="icon icon-trash"></span></button>
+					<button data-dni="{{dni_personal}}" data-nombres="{{nombres_apellidos}}" class="bg-rojo btn btn-sm "><span class="icon icon-trash"></span></button>
 					</div>
 
 					<div class="table-view-row table-view-row-absolute" style="position: relative;height: 40px;">
 					{{#if_ numero_horas_nocturno '!=' ''}}	
 						<div>Horas Nocturno</div>
-						<input type="number" data-dni="{{dni}}" class="holo text-center horas-dos" value="{{numero_horas_nocturno}}">
+						<input type="number" data-dni="{{dni_personal}}" class="holo text-center horas-dos" value="{{numero_horas_nocturno}}">
 						<span class="escondido label-guardado btn-appbase"> <span class="icon icon-check"></span></span>
 					{{/if_}}
 					</div>
@@ -59,7 +59,7 @@
 					{{#if_ ../../idturno '==' '01'}}
 						{{#if_ numero_horas_diurno '!=' ''}}
 						<div>Horas Diurno</div>
-						<input type="number" data-dni="{{dni}}" class="holo text-center horas-uno" value="{{numero_horas_diurno}}"/>
+						<input type="number" data-dni="{{dni_personal}}" class="holo text-center horas-uno" value="{{numero_horas_diurno}}"/>
 						<span class="escondido label-guardado btn-appbase"> <span class="icon icon-check"></span></span>
 						{{/if_}}
 					{{/if_}}
@@ -67,13 +67,13 @@
 					{{#if_ ../../idturno '==' '02'}}
 						{{#if_ numero_horas_nocturno '!=' ''}}
 							<div>Horas Nocturno</div>
-							<input type="number" data-dni="{{dni}}" class="holo text-center horas-uno" value="{{numero_horas_nocturno}}">
+							<input type="number" data-dni="{{dni_personal}}" class="holo text-center horas-uno" value="{{numero_horas_nocturno}}">
 							<span class="escondido label-guardado btn-appbase"> <span class="icon icon-check"></span></span>
 						{{/if_}}
 					{{/if_}}
 
 
-					<button data-dni="{{dni}}" data-nombres="{{nombres_apellidos}}" class="bg-rojo btn btn-sm "><span class="icon icon-trash"></span></button>
+					<button data-dni="{{dni_personal}}" data-nombres="{{nombres_apellidos}}" class="bg-rojo btn btn-sm "><span class="icon icon-trash"></span></button>
 				</div>
 			{{/if_}}
 	<!--

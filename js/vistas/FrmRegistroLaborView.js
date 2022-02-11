@@ -293,6 +293,7 @@ var FrmRegistroLaborView = function ({fecha_dia, id_registro_labor_edicion}) {
     var _fnGuardar = function(objRegistro){
         new RegistroLabor({fecha_dia: fecha_dia, dni_usuario: dni_usuario_registrando}).registrar(objRegistro)
           .done(function(resultado){
+                console.log(resultado);
                   imprimirAlerta("Labor registrada correctamente","bg-verde");
                   history.back();
                 })

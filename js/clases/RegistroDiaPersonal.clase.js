@@ -45,6 +45,14 @@ var RegistroDiaPersonal = function(data){
 			);
 	};
 
+	this.eliminarRegistroDiaPersonal = function(){
+		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: [this.idempresa]}, 
+				(objRegistro)=>{
+					return 	objRegistro.fecha_dia === this.fecha_dia;		
+				})
+			);
+	};
+
 	this.eliminarRegistro = function({numero_acceso, tipo_registro}){
 		return $.when(_DB_HANDLER.eliminar(storeName, 
 					{index: "fecha_dia,dni_personal,idempresa", value: [this.fecha_dia, this.dni_personal, this.idempresa]}, 
@@ -85,8 +93,21 @@ var RegistroDiaPersonal = function(data){
 					[this.fecha_dia,this.dni_personal,this.idempresa], null,
 					{pareados: pareados}));
 	};
-	
 
+	this.obtenerRegistrosAsistencia = function(){
+		this.estado_envio = "0";
+		return $.when(_DB_HANDLER.listarFiltro(storeName, {
+									"indexes": "fecha_dia,estado_envio,idempresa",
+									"values": [ this.fecha_dia,this.estado_envio,this.idempresa]
+								}));
+	};
+
+	this.marcarRegistrosAsistenciaEnviados = function({estado_envio}){
+		return $.when(_DB_HANDLER.actualizar(storeName, "=", "fecha_dia,idempresa", 
+					[this.fecha_dia,this.idempresa], null,
+					{estado_envio: estado_envio}));
+	};
+		
 	this.limpiar = function(){
 		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: this.idempresa}));
 	};

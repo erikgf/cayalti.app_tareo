@@ -38,9 +38,7 @@ var RegistroLabor = function(data){
 	};
 
 	this.registrar = function({idcampo, idactividad, idlabor, idtipotareo, idturno, campo, labor, actividad, turno, id}){
-		var objNuevoRegistro = [];
-
-		objNuevoRegistro.push({
+		var objNuevoRegistro = {
 			fecha_dia: this.fecha_dia,
 			idempresa : this.idempresa,
 			dni_usuario: this.dni_usuario,
@@ -53,13 +51,13 @@ var RegistroLabor = function(data){
 			labor: labor,
 			actividad: actividad,
 			turno: turno
-		});
+		};
 
 		if (id == ""){
-			return $.when(_DB_HANDLER.registrar(storeName, objNuevoRegistro));
+			return $.when(_DB_HANDLER.registrar(storeName, [objNuevoRegistro]));
 		}
 
-		return $.when(_DB_HANDLER.actualizar(storeName, "=", "id", id, null, objNuevoRegistro[0]));
+		return $.when(_DB_HANDLER.actualizar(storeName, "=", "id", parseInt(id), null, objNuevoRegistro));
 	};
 
 	this.getRegistro = function({idcampo, idlabor, idturno}){
@@ -71,6 +69,14 @@ var RegistroLabor = function(data){
 		return $.when(_DB_HANDLER.eliminar(storeName, {index: "id", value: parseInt(id)}, 
 				(objRegistro)=>{
 					return  true;	
+				})
+			);
+	};
+
+	this.eliminarRegistroLabor = function(){
+		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: [this.idempresa]}, 
+				(objRegistro)=>{
+					return 	objRegistro.fecha_dia === this.fecha_dia;		
 				})
 			);
 	};
