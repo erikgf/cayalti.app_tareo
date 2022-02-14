@@ -57,7 +57,7 @@
             <div class="content-padded text-center">   
                 <h4>Fecha de Trabajo</h4>      
                 <h3 class="fecha">{{fecha_registro}}</h3> 
-                <ul class="table-view">
+                <ul class="table-view" style="padding-bottom:16px">
                       <li class="table-view-cell text-left">
                         TRABAJAR CON GPS
                         <div class="txt-trabajargps toggle {{#if_ is_gps_activated '==' 'true'}}active{{/if_}}">
@@ -65,8 +65,6 @@
                         </div>
                       </li>
                 </ul>
-                
-                <hr>
                 <p>
                     <button data-url="registro-asistencia" class="btn-left btnopcion btn btn-block btn-primary">ASISTENCIA
                          <span class="badge badge-turno">{{registros_pendientes_envio}} / {{registros_totales}}</span>

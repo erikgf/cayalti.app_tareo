@@ -1,7 +1,7 @@
 .bar-nav {
     height: 50px;
     background: rgb(68,200,96);
-	   background: linear-gradient(45deg, rgba(68,200,96,1) 0%, rgba(1,204,43,1) 35%, rgba(20,110,39,1) 100%);
+	   background: linear-gradient(45deg, rgba(68,200,96,1) 0%, rgba(1,204,43,1) 35%, rgba(71 155 89) 100%);
     border-bottom: 1px solid #12892b;
     -webkit-box-shadow: inset 0 -2px 0 #2cb549, 0 3px 3px rgb(0 0 0 / 7%);
     box-shadow: inset 0 -2px 0 #2cb549, 0 3px 3px rgb(0 0 0 / 7%);
@@ -21,7 +21,7 @@
 
 .btn-appbase{
 	background: rgb(68,200,96);
-	background: linear-gradient(45deg, rgba(68,200,96,1) 0%, rgba(1,204,43,1) 35%, rgba(20,110,39,1) 100%);
+	background: linear-gradient(45deg, rgba(68,200,96,1) 0%, rgba(1,204,43,1) 35%, rgba(71 155 89) 100%);
 }
 
 .btn-nav:active, .btn-nav.active, .btn-base.active, .btn-base:active {
@@ -32,7 +32,7 @@
 
 .btn-dayselected{
   color: #fff;
-  background-color: #12892b;
+  background: linear-gradient(45deg, rgba(68,200,96,1) 0%, rgba(1,204,43,1) 35%, rgb(71 155 89) 100%);
   border: 0;
 }
 
