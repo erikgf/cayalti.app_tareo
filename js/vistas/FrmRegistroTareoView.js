@@ -15,7 +15,7 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
         GPSOK = 0,
         INTERFACE_ON;
 
-    var MAX_HORAS_DIA = 14;
+    var MAX_HORAS_DIA = 12;
     var isGPSActivated = VARS.GET_ISGPSACTIVATED() == "true";
     var dni_usuario_ingresando = DATA_NAV.usuario.dni;
     var idregistrolabor = null;
@@ -191,7 +191,11 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
 
         $.whenAll( reqObj )
                 .done(function(resultado){
-                    var listaAsistentesGeneral = resultado.UIListaAsistenciasGeneral.map(function(item){ return {...item, seleccionado: '0'}}),
+                    var listaAsistentesGeneral = resultado.UIListaAsistenciasGeneral.map(function(item){
+                            var nItem = Object.assign({}, item);
+                            nItem.seleccionado = "0";
+                            return nItem;
+                        }),
                         listaAsignacionesGeneral =  resultado.UIListaAsignacionesGeneral,
                         listaAsignaciones = resultado.UIListaAsignaciones;
 
@@ -329,20 +333,24 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
             dni_personal = $input.dataset.dni,
             numero_horas_nocturno = -1,
             numero_horas_diurno = -1;
-
-            
-        if (idturno != "03"){
-            if (numero_horas == "" || numero_horas <= "0"){
-                $input.value = "8";
-                numero_horas = "8";
-            }  
+        
+        if (numero_horas > MAX_HORAS_DIA){
+            alert("Horas ingresadas no válidas.");
+            $input.value = MAX_HORAS_DIA;
+            numero_horas = MAX_HORAS_DIA;
         } else {
-            if (numero_horas == "" || numero_horas < "0"){
-                $input.value = "0";
-                numero_horas = "0";
-            }  
+            if (idturno != "03"){
+                if (numero_horas == "" || numero_horas <= "0"){
+                    $input.value = "8";
+                    numero_horas = "8";
+                }  
+            } else {
+                if (numero_horas == "" || numero_horas < "0"){
+                    $input.value = "0";
+                    numero_horas = "0";
+                }  
+            }
         }
-       
 
         switch(idturno){
             case "01":
@@ -392,6 +400,12 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
 
         if (numHoras == ""){
             $input.value = "8";
+            $otro_input = "0";
+            return;
+        }
+
+        if (numero_horas > MAX_HORAS_DIA){
+            $input.value = MAX_HORAS_DIA;
             $otro_input = "0";
             return;
         }

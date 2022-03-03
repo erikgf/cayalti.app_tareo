@@ -65,8 +65,11 @@ var InicioView = function () {
                 var hoy = _getHoy();
                 var existioFechaHoy = false;
             	var listaDias = resultadoOrdenado.map(function(o){
-                    existioFechaHoy = !existioFechaHoy ? (o.fecha_dia === hoy) : existioFechaHoy;
-                    return {fecha_dia_raw: o.fecha_dia, opcion_seleccionada : o.fecha_dia === fechaTrabajoCache, fecha_dia: _formateoFecha(o.fecha_dia)};
+                    existioFechaHoy = !existioFechaHoy ? (o.fecha_dia == hoy) : existioFechaHoy;
+                    return {fecha_dia_raw: o.fecha_dia, 
+                                    opcion_seleccionada : o.fecha_dia === fechaTrabajoCache, 
+                                    fecha_dia: _formateoFecha(o.fecha_dia)
+                                };
                 });
 
 

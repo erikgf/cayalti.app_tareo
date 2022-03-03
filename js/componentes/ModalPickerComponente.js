@@ -79,7 +79,7 @@ var ModalPickerComponente = function() {
 
       this.render = function(data) {
         var self = this;
-        localData = [...data.items];
+        localData = Object.assign([], data.items);
         this.$el.html(this.template(data)).addClass("active");
         setTimeout(function(){
           self.$el.find(".modal-new-filter").focus();

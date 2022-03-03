@@ -146,9 +146,21 @@ var FrmRegistroLaborView = function ({fecha_dia, id_registro_labor_edicion}) {
 
         $.whenAll(reqObj)
           .done(function(resultado){
-                var UIActividades  = resultado.UIActividades.map(function(o){return {...o, codigo: o.idactividad}}),
-                    UICampos  =  resultado.UICampos.map(function(o){return {...o, codigo: o.idcampo}}),
-                    UITurnos  =  resultado.UITurnos.map(function(o){return {...o, codigo: o.idturno}});
+                var UIActividades  = resultado.UIActividades.map(function(o){
+                        var nO = Object.assign({}, o);
+                        nO.codigo = o.idactividad;
+                        return nO;
+                    }),
+                    UICampos  =  resultado.UICampos.map(function(o){
+                        var nO = Object.assign({}, o);
+                        nO.codigo = o.idcampo;
+                        return nO;
+                    }),
+                    UITurnos  =  resultado.UITurnos.map(function(o){
+                        var nO = Object.assign({}, o);
+                        nO.codigo = o.idturno;
+                        return nO;
+                    });
 
                 DATA_STORE.campos = UICampos;
                 DATA_STORE.actividades = UIActividades;
@@ -193,7 +205,11 @@ var FrmRegistroLaborView = function ({fecha_dia, id_registro_labor_edicion}) {
 
         new Labor({idactividad: idactividad}).consultarPorActividad()
           .done(function(resultado){
-                DATA_STORE.labores =  resultado.map(function(o){return {...o, codigo: o.idlabor}});
+                DATA_STORE.labores =  resultado.map(function(o){
+                    var nuevoO = Object.assign({}, o);
+                    nuevoO.codigo = o.idlabor;
+                    return nuevoO;
+                });
                 $labores.attr("placeholder", "Seleccionar labor");
 
                 if (idLaborSeleccionada != ""){

@@ -41,38 +41,7 @@ var onDeviceReady = function () {
       return esAppMovil ?  $.get("template.master.hbs") : $.get("template.compiler.php");
     };
 
-    /*
-
-    var servicio = new AgriServicio(),
-        servicio_web = new AgriServicioWeb(),
-        servicio_frm = new AgriServicioFrm();
-    */
     SERVICIO_GPS = new GPSProvider();
-
-        /*
-    servicio_frm.initialize(db);
-    */
-/*
-    servicio.initialize(db).then(function (htmlScriptTemplates) {
-      try{
-        procesarTemplates(htmlScriptTemplates);
-
-        if (DATA_NAV.acceso){
-          router.load("inicio");
-        } else {
-          router.load("");
-        }
-
-        router.start();
-        
-        checkgps();
-
-      }catch(e){
-        console.error(e)
-      };
-    });
-    */
-
 
     new BaseDatosLocal().then(function () {
       compilar().then(function(htmlScriptTemplates){
@@ -128,13 +97,15 @@ var onDeviceReady = function () {
             }
           });
 
+
+          router.start();
+
           if (DATA_NAV.acceso){
             router.load("inicio");
           } else {
             router.load("");
           }
 
-          router.start();
           checkgps();
           //checkActualizar();
         }catch(e){
@@ -170,6 +141,14 @@ var onDeviceReady = function () {
     var app = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
     if ( app ) {
       document.addEventListener("deviceready", onDeviceReady, false);
+      document.addEventListener('backbutton', function(e) {
+           if (window.location.hash == "" || window.location.hash == "#"){
+               navigator.app.exitApp();
+               return false;
+           }
+           history.back();
+      }, false);
+
     } else {
       onDeviceReady();  // webapp
     } 

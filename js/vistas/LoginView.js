@@ -1,6 +1,5 @@
 var LoginView = function() {
     var self = this,
-        _CLICKS = 0,
         SINCRO_AUTO = true,
         SEGUNDOS_VERIFICAR_SINCRO = 2,
         objSincronizador;
@@ -11,6 +10,7 @@ var LoginView = function() {
     var objCacheEmpresaSincro = new CacheComponente(VARS.CACHE.EMPRESA_SINCRO);
     var objCacheEmpresa = new CacheComponente(VARS.CACHE.EMPRESA);
     var objCacheGPS = new CacheComponente(VARS.CACHE.GPS);
+    var VALOR_POR_DEFECTO_GPS = 'false';
 
      this.initialize = function() {
          this.$el = $('<div/>');
@@ -21,13 +21,14 @@ var LoginView = function() {
         this.$el.on("change", "#txt-seleccionar-empresa", this.seleccionarEmpresa);
         this.$el.on("submit","form", this.iniciarSesion);
         this.$el.on("click","#btn-sincronizar", this.verificarSincronizacionUltimaManual);
-        this.$el.on("click", ".txt-trabajargps", this.toggleGPS);   
+        this.$el.on("click", ".txt-trabajargps", this.toggleGPS);
+        this.$el.on("click", ".img-logo-main", this.clickingLogo);         
      };
 
      this.render = function() {
         isGPSActivated = VARS.GET_ISGPSACTIVATED();
         if (isGPSActivated === null){
-            isGPSActivated = 'true';
+            isGPSActivated = VALOR_POR_DEFECTO_GPS;
             objCacheGPS.set(isGPSActivated);
         }
 
@@ -174,7 +175,7 @@ var LoginView = function() {
     var checkGPSActivado = function(onCorrecto){
         isGPSActivated = VARS.GET_ISGPSACTIVATED();
         if (isGPSActivated === null){
-            isGPSActivated = 'true';
+            isGPSActivated = VALOR_POR_DEFECTO_GPS;
             objCacheGPS.set(isGPSActivated);
         }
 
@@ -206,6 +207,24 @@ var LoginView = function() {
       objCacheEmpresa.set(this.value);
     };
 
+    var _clicks = 0;
+    this.clickingLogo = function(){
+      let claseRojo = "color-rojo";
+      if (_clicks >= 5){
+        _clicks = 0;
+        console.log("k", VARS.SERVER_NAME, self.$el.find("h3"));
+        if (VARS.SERVER_NAME === VARS.SERVER_NAME_PRODUCCION){
+          self.$el.find("h3").addClass(claseRojo);
+          VARS.SERVER_NAME = VARS.SERVER_NAME_DESARROLLO;
+        } else{
+          self.$el.find("h3").removeClass(claseRojo);
+          VARS.SERVER_NAME = VARS.SERVER_NAME_PRODUCCION;
+        }
+      }
+
+      _clicks++;
+    };
+
     this.destroy = function(){
         if (objSincronizador){
             objSincronizador.destroy();
@@ -217,6 +236,7 @@ var LoginView = function() {
         this.$el.off("submit","form", this.iniciarSesion);
         this.$el.off("click","#btn-sincronizar", this.verificarSincronizacionUltimaManual);
         this.$el.off("click", ".txt-trabajargps", this.toggleGPS);
+        this.$el.off("click", ".img-logo-main", this.clickingLogo);         
 
         this.$el = null;
         self = null;

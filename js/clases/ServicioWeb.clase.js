@@ -8,7 +8,7 @@ const ServicioWeb = function() {
     4.- Consulta y agregar informacion
     5.- Enviar informacion
     */
-    var URL_RUTA = VARS.SERVER;
+    var URL_RUTA = VARS.SERVER();
     var URL_RUTA_CONTROLADOR = URL_RUTA+"/controlador/";
     var self = this;
     var EMPRESA =  VARS.GET_EMPRESA();

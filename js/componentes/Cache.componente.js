@@ -6,6 +6,7 @@ var CacheComponente = function(nombre_sufijo_storage){
 			console.error("Sufijo de CACHE no enviado.")
 			return this;
 		}
+		
 		strStorage = VARS.NOMBRE_STORAGE+"_"+nombre_sufijo_storage.toUpperCase();
 		return this;
 	};

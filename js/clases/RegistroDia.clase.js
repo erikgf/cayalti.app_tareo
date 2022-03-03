@@ -1,57 +1,72 @@
-var RegistroDia = function(data){
-	var self = this,
-		_DB_HANDLER = DB_HANDLER;
+"use strict";
 
-	var storeName = "RegistroDia";
-	this.fecha_dia = "";
-	this.idempresa = "";
+var RegistroDia = function (data) {
+  var self = this,
+      _DB_HANDLER = DB_HANDLER;
+  var storeName = "RegistroDia";
+  this.fecha_dia = "";
+  this.idempresa = "";
 
-	this.init = function(data){
-		if (data){
-			this.fecha_dia = data.fecha_dia ?? "";
-		}
+  this.init = function (data) {
+    if (data) {
+      var _data$fecha_dia;
 
-		this.idempresa = VARS.GET_EMPRESA();
-	};
+      this.fecha_dia = (_data$fecha_dia = data.fecha_dia) !== null && _data$fecha_dia !== void 0 ? _data$fecha_dia : "";
+    }
 
-	this.getRegistroDias = function(){
-		return $.when(_DB_HANDLER.listarFiltro(storeName, {indexes: "idempresa", values: this.idempresa}));
-	};
+    this.idempresa = VARS.GET_EMPRESA();
+  };
 
-	this.verificarExisteFecha = function(){
-		return $.when(_DB_HANDLER.listarFiltro(storeName, {"indexes": "fecha_dia,idempresa" ,"values": [this.fecha_dia, this.idempresa]}));
-	};
+  this.getRegistroDias = function () {
+    return $.when(_DB_HANDLER.listarFiltro(storeName, {
+      indexes: "idempresa",
+      values: this.idempresa
+    }));
+  };
 
-	this.eliminarRegistroDia = function(){
-		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: this.idempresa}, 
-				(objRegistro)=>{
-					return 	objRegistro.fecha_dia === this.fecha_dia;		
-				})
-			);
-	};
+  this.verificarExisteFecha = function () {
+    return $.when(_DB_HANDLER.listarFiltro(storeName, {
+      "indexes": "fecha_dia,idempresa",
+      "values": [this.fecha_dia, this.idempresa]
+    }));
+  };
 
-	this.eliminarRegistroDiaHasta = function(){
-		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: this.idempresa}, 
-			(objRegistro)=>{
-				return 	objRegistro.fecha_dia < this.fecha_dia
-			})
-		);
-	};
+  this.eliminarRegistroDia = function () {
+    return $.when(_DB_HANDLER.eliminar(storeName, {
+      index: "idempresa",
+      value: this.idempresa
+    }, objRegistro => {
+      return objRegistro.fecha_dia === this.fecha_dia;
+    }));
+  };
 
-	this.addNuevaFechaDia = function(){
-		var objNuevoRegistro = [];
+  this.eliminarRegistroDiaHasta = function () {
+    return $.when(_DB_HANDLER.eliminar(storeName, {
+      index: "idempresa",
+      value: this.idempresa
+    }, objRegistro => {
+      return objRegistro.fecha_dia < this.fecha_dia;
+    }));
+  };
 
-		objNuevoRegistro.push({
-			fecha_dia: this.fecha_dia,
-			idempresa : this.idempresa
-		});
+  this.addNuevaFechaDia = function () {
+    var objNuevoRegistro = [];
+    objNuevoRegistro.push({
+      fecha_dia: this.fecha_dia,
+      idempresa: this.idempresa
+    });
 
-		return $.when(_DB_HANDLER.registrar(storeName, objNuevoRegistro));
-	};
 
-	this.limpiar = function(){
-		return $.when(_DB_HANDLER.eliminar(storeName, {index: "idempresa", value: this.idempresa}));
-	};
+    console.log("ESTOY AGREGANDO NUEVA FECHA DIA");
+    return $.when(_DB_HANDLER.registrar(storeName, objNuevoRegistro));
+  };
 
-	return this.init(data);
+  this.limpiar = function () {
+    return $.when(_DB_HANDLER.eliminar(storeName, {
+      index: "idempresa",
+      value: this.idempresa
+    }));
+  };
+
+  return this.init(data);
 };

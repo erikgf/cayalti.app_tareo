@@ -32,6 +32,7 @@
 
 .btn-dayselected{
   color: #fff;
+  background-color: #12892b;
   background: linear-gradient(45deg, rgba(68,200,96,1) 0%, rgba(1,204,43,1) 35%, rgb(71 155 89) 100%);
   border: 0;
 }
