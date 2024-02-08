@@ -1,0 +1,63 @@
+    	<header class="bar bar-nav">
+            <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+                    <span class="icon icon-left-nav pull-left"></span>
+                    <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
+            </a>
+            <h1 class="title">Rendimientos Tareo</h1>
+        </header>
+
+        <style type="text/css">
+
+        .badge-turno{
+            padding: 7.5px 12px !important;
+            font-size: 18px !important;
+            background: #ff4444 !important;
+            color: white !important;
+        }
+
+        .bar-header-secondary{
+            height: initial;
+        }
+
+        .bar-header-secondary .table-view{
+            font-size: .85em;
+        }
+    
+        .table-view-cell{
+            padding: 10px;
+        }
+
+        .lst {
+            font-size: .85em;
+        }
+
+        </style>
+
+        <div class="bar bar-standard bar-header-secondary">	 
+            <ul class="table-view">
+                <li class="row-duo table-view-row bold">
+                    <div>{{fecha_registro}}</div>
+                    <div>{{turno}}</div>
+                </li>
+                <li class="table-view-cell table-view-row">
+                    <div> Campo: {{campo}} </div>
+                    {{#caporal}}
+                    <div> Caporal: {{this}}</div>
+                    {{/caporal}}
+				</li>
+            	<li class="table-view-cell">
+                    <b>Labor: {{labor}}</b>
+				</li>
+                <li class="row-duo table-view-row">
+                     <div> Tareo: {{#if_ idtipotareo '==' 'J'}}JORNAL{{else}}POR TAREO{{/if_}} </div>
+                     <div class="bold"> U.M.: {{unidad_medida}}</div>
+                </li>
+            </ul>
+	    </div>
+
+    	<div class="content">
+    		<div class="content-padded">
+                <input class="txt-buscar-filtrar" type="search" placeholder="Buscar..."/>
+                <ul class="lst lst-rendimientos table-view"></ul>
+           </div>
+		</div>

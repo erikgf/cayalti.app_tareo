@@ -10,6 +10,7 @@ var AgriServicio = function() {
 
     this.compilar = function(){
       var esAppMovil = document.URL.indexOf( 'http://' ) === -1 && document.URL.indexOf( 'https://' ) === -1;
+      console.log({esAppMovil});
       return esAppMovil ?  $.get("template.master.hbs") : $.get("template.compiler.php");
     };
 
@@ -54,7 +55,7 @@ var AgriServicio = function() {
             cleanAll = true;
         }
         return _db.insertarDatos("labor",  
-                                    ["idlabor", "descripcion","idactividad"],
+                                    ["idlabor", "descripcion","idactividad", "unidad_medida"],
                                         data, 
                                             cleanAll);
     };
@@ -81,6 +82,16 @@ var AgriServicio = function() {
                                     ["idturno", "descripcion", "hora_entrada", "hora_salida"],
                                         turnos, 
                                             true);
+    };
+
+    this.insertarUnidadMedidas = function(data, cleanAll){
+        if (cleanAll == undefined){
+            cleanAll = true;
+        }
+    	return _db.insertarDatos("unidad_medida",  
+    								["id_unidad_medida","descripcion"],
+			    						data, 
+			    							cleanAll);
     };
 
     this.insertarRegistroEntradas = function(registro_entradas){

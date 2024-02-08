@@ -1,0 +1,52 @@
+	<style type="text/css">
+		.table-view-cell{
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.holo{
+			max-width: 90px;
+		}
+
+		.label-guardado{
+			left: 185px;
+		    padding: 5px 10px;
+		    margin-top: 5px;
+		    border-radius: 1em;
+		    font-size: 10px;
+		}
+
+		.icon-check{
+			font-size: 15px;
+		}
+
+		.btn-check{
+			height: 32.5px;
+			border-radius: 2.5em;
+			line-height: 1.5;
+			border: 0;
+			-webkit-box-shadow: inset 0 -1px 0 rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.2), 0 1px 1px rgba(0,0,0,.25);
+   			box-shadow: inset 0 -1px 0 rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.2), 0 1px 1px rgba(0,0,0,.25);
+		}
+
+		.btn-check:hover{
+			opacity: .85;
+		}
+
+		.bg-verde {
+			background-color: #36a64e !important;
+			color: white;
+		}
+	</style>
+	{{#registros}}
+		<li class="table-view-cell">
+			<div class="nombre">{{dni_personal}} - {{nombres_apellidos}}</div>
+			<input type="text" data-dni="{{dni_personal}}" class="holo bg-verde text-center valor-rendimiento" readonly value="{{valor_rendimiento}}" />
+			<input type="number" data-dni="{{dni_personal}}" class="holo text-center valor-acumulador" value="0" />
+			<button class="btn-check btn-sm bg-verde btn-guardar-valor">OK</span></button>
+			<span class="escondido btn-check btn-sm btn-appbase"> <span class="icon icon-check"></span></span>
+		</li> 
+	{{else}}
+		<p>No hay tareos.</p>
+	{{/registros}}

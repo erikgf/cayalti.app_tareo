@@ -3,7 +3,6 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
 		fechaOK = false,
         $content,
         $fecha,
-        $actualTab, $actualContainer,
         modalMensaje;
 
     var objCacheComponente = new CacheComponente(VARS.CACHE.GPS);
@@ -31,16 +30,23 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
 
 	this.consultarUI = function(){
         var self = this; 
+
         var reqObj = {
                 getRegistroDiasPersonal: new RegistroDiaPersonal({fecha_dia: fecha_dia}).getRegistrosDia(),
                 getRegistroLaborPersonal : new RegistroLaborPersonal({fecha_dia: fecha_dia, dni_usuario: DATA_NAV.usuario.dni}).getRegistrosDia(),
+                getRegistroLaborRendimientoPersonal : new RegistroLaborRendimientoPersonal({fecha_dia: fecha_dia, dni_usuario: DATA_NAV.usuario.dni}).getRegistrosDia(),
             };
 
         $.whenAll(reqObj)
           .done(function(resultado){
-                var registrosDiasPersonal = resultado.getRegistroDiasPersonal;
-                var registrosLaboresPersonal = resultado.getRegistroLaborPersonal;
-                var fechaRegistroActiva = fecha_dia;
+                const filterRendimiento = function(item){
+                    return item.con_rendimiento === '1';
+                };
+
+                const registrosDiasPersonal = resultado.getRegistroDiasPersonal;
+                const registrosLaboresPersonal = resultado.getRegistroLaborPersonal;
+                const registrosLaboresRendimientoPersonal = resultado.getRegistroLaborRendimientoPersonal.filter(filterRendimiento);
+                const fechaRegistroActiva = fecha_dia;
 
                 if (fechaRegistroActiva != null && fechaRegistroActiva != ""){
                     fechaOK = true;
@@ -50,7 +56,7 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                     fechaRegistro = _formateoFecha(_getHoy());
                 }
 
-                var isGPSActivated = VARS.GET_ISGPSACTIVATED();
+                let isGPSActivated = VARS.GET_ISGPSACTIVATED();
                 if (isGPSActivated === null){
                     isGPSActivated = true;
                     objCacheComponente.set(isGPSActivated);
@@ -71,6 +77,8 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                     registros_totales : registrosDiasPersonal.length,
                     registros_pendientes_tareo_envio: registrosLaboresPersonal.filter(filter).length,
                     registros_tareo_totales : registrosLaboresPersonal.length,
+                    registros_pendientes_rendimiento_envio: registrosLaboresRendimientoPersonal.filter(filter).length,
+                    registros_rendimiento_totales : registrosLaboresRendimientoPersonal.length,
                 })); 
 
                 $content = self.$el.find(".content");
@@ -126,16 +134,6 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
         confirmar("¿Desea eliminar el día de asistencia? Esta acción es irreversible", fnConfirmar);        
     };
 
-    var checkFechaTrabajoVariable = function(){
-        if (fechaOK == true){
-            $fecha.removeClass("color-rojo");
-            $fecha.addClass("color-verde"); 
-        }  else{
-            $fecha.removeClass("color-verde");
-            $fecha.addClass("color-rojo");
-        }
-    };
-
     this.procesarEnviarDatos = function(){
         var reqObj = {
               datos_asistencia: new RegistroDiaPersonal({fecha_dia: fecha_dia}).obtenerRegistrosAsistencia(),
@@ -144,35 +142,47 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
 
         $.whenAll(reqObj)
           .done(function (resultado) {
-            var JSONAsistencia, JSONTareo;
-            var datos_asistencia = resultado.datos_asistencia.map(function(item){
-                    return {
-                            dni_personal: item.dni_personal,
-                            hora_registro: item.hora_registro,
-                            tipo_registro: item.tipo_registro,
-                            numero_acceso: item.numero_acceso,
-                            dni_usuario: item.dni_usuario,
-                            latitud: item.latitud,
-                            longitud: item.longitud
-                        };
-                }),
-                datos_tareo = resultado.datos_tareo.map(function(item){
-                    return {
-                            idlabor: item.idlabor,
-                            idcampo: item.idcampo,
-                            dni_personal: item.dni_personal,
-                            idturno: item.idturno,
-                            hora_registro: item.hora_registro,
-                            latitud: item.latitud,
-                            longitud: item.longitud,
-                            numero_horas_diurno: item.numero_horas_diurno,
-                            numero_horas_nocturno: item.numero_horas_nocturno
-                        };
+            let JSONAsistencia, JSONTareo;
+            const datos_asistencia = resultado.datos_asistencia,
+                datos_tareo = resultado.datos_tareo.map(item => {
+                    if (item.idcaporal == ""){
+                        return {
+                            ...item,
+                            idcaporal : usuario_enviando.dni
+                        }
+                    }
+                    return item;
                 });
 
+
+            console.log({
+                datos_asistencia, datos_tareo
+            })
+
             if (!datos_asistencia.length && !datos_tareo.length){
-               alert("No hay registros para enviar.");
-               return;
+                alert("No hay registros para enviar.");
+                return;
+             }
+
+            if (resultado.datos_asistencia.length != resultado.datos_tareo.length){
+                alert("Aún tengo registros de asistencia que no han sido tareados.");
+                return;
+            }
+            
+            const datos_tareo_ordenado = datos_tareo.sort(_fieldSorter(['idcampo', 'idlabor','con_rendimiento','idcaporal']));
+
+            const tareosRedimientoSinRendimiento = datos_tareo_ordenado.filter(registro=>{
+                if (registro.con_rendimiento == 1){
+                    if (registro.valor_rendimiento === ""){
+                        return true;
+                    }
+                }
+                return false;
+            });
+
+            if (tareosRedimientoSinRendimiento.length > 0){
+                alert(`Hay ${tareosRedimientoSinRendimiento.length} tareos SIN RENDIMIENTOS registrados.`);
+                return;
             }
 
             try{
@@ -182,16 +192,16 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                     JSONAsistencia = "";
                 }
 
-                if (datos_tareo.length > 0){
-                    JSONTareo = JSON.stringify(procesarDatosTareo(datos_tareo));
+                if (datos_tareo_ordenado.length > 0){
+                    JSONTareo = JSON.stringify(procesarDatosTareo(datos_tareo_ordenado));
                 } else {
                     JSONTareo = "";
                 }
             } catch(e){
                 console.error("JSON Error", e);
-            } 
+            }
 
-           enviarDatos(JSONAsistencia, JSONTareo);
+            enviarDatos(JSONAsistencia, JSONTareo);
           })
           .fail(_UIFail);
     };
@@ -226,7 +236,7 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
         return objEnvioCultivo;
     };
 
-    var procesarDatosTareo = function(datos){
+    const procesarDatosTareo = function(datos){
         /*procesar 3 detalles*/
         var usuario_envio = usuario_enviando.usuario,
             codigo_general_usuario_envio = usuario_enviando.dni,
@@ -238,34 +248,42 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
             idmovil = getDevice(),
             objEnvioCultivo;
 
-        var keyUltimo = null, keyTemporal = null;
+        let objUltimo = null;
 
         for (var i = 0; i < datos.length; i++) {
-            var o = datos[i];
+            const o = datos[i];
+            const keyTemporal = o.idlabor+o.idcampo+"_"+o.idcaporal;
 
-            keyTemporal = o.idlabor+o.idcampo;
-
-            if (keyUltimo == null){
+            if (objUltimo == null){
                 objDetalle = {
                     idlabor : o.idlabor,
                     idcampo : o.idcampo,
                     detalle : [],
-                    idturno: o.idturno
+                    idturno: o.idturno,
+                    con_rendimiento: o.con_rendimiento == "1",
+                    id_unidad_medida: o.id_unidad_medida,
+                    valor_tareo: o.valor_tareo,
+                    idcaporal: o.idcaporal
                 };
+            } else {
+                const keyUltimo = objUltimo.idlabor+objUltimo.idcampo+"_"+objUltimo.idcaporal;
+                if (keyUltimo != keyTemporal){
+                    objDetalle.detalle = arrDetalleDetalle;
+                    arrDetalle.push(objDetalle);
+                    objDetalle = {
+                        idlabor : o.idlabor,
+                        idcampo : o.idcampo,
+                        detalle : [],
+                        idturno: o.idturno,
+                        con_rendimiento: (o.con_rendimiento | keyUltimo.con_rendimiento) == "1",
+                        id_unidad_medida: o.id_unidad_medida,
+                        valor_tareo: o.valor_tareo,
+                        idcaporal: o.idcaporal
+                    };
+    
+                    arrDetalleDetalle = [];
+                }   
             }
-
-            if (keyUltimo != null && keyUltimo != keyTemporal){
-                objDetalle.detalle = arrDetalleDetalle;
-                arrDetalle.push(objDetalle);
-                objDetalle = {
-                    idlabor : o.idlabor,
-                    idcampo : o.idcampo,
-                    detalle : [],
-                    idturno: o.idturno
-                };
-
-                arrDetalleDetalle = [];
-            }    
 
             arrDetalleDetalle.push({
                 dni_personal: o.dni_personal,
@@ -274,9 +292,10 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                 longitud: o.longitud,
                 numero_horas_diurno : o.numero_horas_diurno,
                 numero_horas_nocturno : o.numero_horas_nocturno,
-                dni_usuario : codigo_general_usuario_envio
+                dni_usuario : codigo_general_usuario_envio,
+                rendimiento: o.valor_rendimiento
             });
-            keyUltimo = keyTemporal;
+            objUltimo = o;
         };  
 
         objDetalle.detalle = arrDetalleDetalle;
@@ -290,6 +309,7 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                         usuario_envio : usuario_envio,
                         idresponsable : idresponsable,
                         fecha_dia_envio : fecha_dia,
+                        version: VERSION_GLOBAL,
                         idmovil : idmovil
                     }
                 };
@@ -319,11 +339,15 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
                         } catch(e){
                             modalMensaje.mostrarError("Error");
                         }
-                        
                     }
                 })
                 .fail(function(error){
-                    modalMensaje.mostrarError(error.message);
+                    if (error?.message){
+                        modalMensaje.mostrarError(error.message);
+                        return;
+                    }
+
+                    modalMensaje.mostrarError(`Ha ocurrido un error: ${error.responseText}`);
                 });
     };
 
@@ -355,9 +379,6 @@ var SeleccionOpcionView = function ({ fecha_dia }) {
     this.destroy = function(){
         $fecha = null;
         $content = null;
-
-        $actualContainer = null;
-        $actualTab = null;
 
         this.$el.off("click",".btnopcion", this.irOpcion);     
         this.$el.off("click",".enviar-datos", this.procesarEnviarDatos);   

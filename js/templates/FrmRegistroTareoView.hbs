@@ -53,11 +53,14 @@
             <ul class="table-view">
                 <li class="row-duo table-view-row bold">
                     <div>{{fecha_registro}}</div>
-                    <div>{{turno}}</div>
+                    <div>{{turno}} {{#con_rendimiento}}<small>(CON RENDIMIENTO)</small>{{/con_rendimiento}}</div>
                 </li>
                 <div class="row-duo table-view-row">
                     <div> Campo: {{campo}} </div>
-                    <div> Tareo: {{#if_ idtipotareo '==' 'J'}}JORNAL{{else}}POR TAREO{{/if_}} </div>
+                    {{#caporal}}
+                    <div> Caporal: {{this}}</div>
+                    {{/caporal}}
+                    <!-- <div> : {{#if_ idtipotareo '==' 'J'}}JORNAL{{else}}POR TAREO{{/if_}} </div> -->
                 </div>
             	<li class="table-view-cell">
                     <b>Labor: {{labor}}</b>

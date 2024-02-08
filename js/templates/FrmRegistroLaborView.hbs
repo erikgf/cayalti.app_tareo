@@ -1,13 +1,13 @@
 	<header class="bar bar-nav">
-            <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
-                    <span class="icon icon-left-nav pull-left"></span>
-                    <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
-            </a>
-            <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
-                <div class="dropdown-rotulo">{{nombres_apellidos}}</div>
-            </div>
-            <h1 class="title">Registro Labor</h1>
-        </header>
+		<a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+				<span class="icon icon-left-nav pull-left"></span>
+				<img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
+		</a>
+		<div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
+			<div class="dropdown-rotulo">{{nombres_apellidos}}</div>
+		</div>
+		<h1 class="title">Registro Labor</h1>
+	</header>
 	<style type="text/css">
 
 		.bloque-mensaje{
@@ -20,20 +20,32 @@
 	    	<div class="content-padded">
 	    		<h6 class="text-left">REGISTRO DE LABOR</h6>
 		    	<form>
-		    	  <input type="text" readonly class="campos" placeholder="Seleccionar campo"/>
-		    	  <input type="text" readonly class="actividades" placeholder="Seleccionar actividades"/>
-		    	  <input type="text" readonly class="labores"/>
-				  <select class="turnos">
-				  </select>
-				  <select class="tipotareo">
-				  	<option value="T">POR TAREO</option>
-				  	<option value="J" selected>JORNAL</option>
-				  </select>
-				  <div class="bloque-mensaje"></div>
-				  <button type="button" class="btn btn-appbase btnguardar btn-block">GUARDAR</button>
-				  <button type="button" class="btn btn-negative btneliminar btn-block escondido">ELIMINAR</button>
-
-				  <a href="javascript:;" onclick="history.back();" class="btn-sm">VOLVER A LA LISTA</button>
+					<input type="text" readonly class="campos" placeholder="Seleccionar campo"/>
+					<input type="text" readonly class="actividades" placeholder="Seleccionar actividades"/>
+					<input type="text" readonly class="labores"/>
+					<select class="turnos">
+					</select>
+					<select class="tipotareo">
+					<option value="T">POR TAREO</option>
+					<option value="J" selected>JORNAL</option>
+					</select>
+					<div style="display: flex; align-items: center; margin-bottom: 12px; gap: 6px;">
+							¿CON CAPORAL? <input type="checkbox" class="chk-caporal" style="width: 20px;height:20px"/> 
+					</div>
+					<input type="text" readonly class="caporal" placeholder="Seleccionar CAPORAL" style="display: none; align-items: center; margin-bottom: 12px; gap: 6px;background-color:#e8e8e6" />
+					<div style="display: flex; align-items: center; margin-bottom: 12px; gap: 6px;">
+						¿CON RENDIMIENTO? <input type="checkbox" class="chk-rendimiento" style="width: 20px;height:20px"/> 
+					</div>
+					<div class="blk-rendimiento" style="display: none;gap: 10px;">
+					<select class="unidad-medida">
+						<option selected value=''>Seleccionar Unid. Med.</option>
+					</select>
+					<input type="text" class="valor-tareo" value="" placeholder="Valor Tareo"/>
+					</div>
+					<div class="bloque-mensaje"></div>
+					<button type="submit" class="btn btn-appbase btnguardar btn-block">GUARDAR</button>
+					<button type="button" class="btn btn-negative btneliminar btn-block escondido">ELIMINAR</button>
+					<a href="javascript:;" onclick="history.back();" class="btn-sm">VOLVER A LA LISTA</button>
 				</form>
 			</div>
 	    </div>

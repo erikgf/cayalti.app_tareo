@@ -1,7 +1,7 @@
-var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
+var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno, conRendimiento, idcaporal}) {
     var self, 
         $content,
-        $listado,
+        $lstAsignaciones,
         $filtroBuscar,
         $txtHoras,
         $txtHorasDiurno,
@@ -14,6 +14,8 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
         modalMensaje,
         GPSOK = 0,
         INTERFACE_ON;
+
+    var valorTareo, idUnidadMedida;
 
     var MAX_HORAS_DIA = 12;
     var isGPSActivated = VARS.GET_ISGPSACTIVATED() == "true";
@@ -55,10 +57,6 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
             if (INTERFACE_ON == 0) return;
             var valor = this.value;
             listaAsistenciaListView.setAsistentes(buscar(valor));
-        },
-        __changeNumHorasDiurnoNocturnoCabecera = function(e){
-            e.preventDefault();
-            self.editarNumeroHorasDiurnoNocturnoCabecera(this);
         },
         __clickSeleccionar = function(e){
             if (INTERFACE_ON == 0) return;
@@ -127,14 +125,13 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
         new RegistroLabor({fecha_dia: fecha_dia, dni_usuario: dni_usuario_ingresando})
                 .getRegistro({idlabor: idlabor, idcampo: idcampo, idturno: idturno})
                     .done(function(resultado){
-                        let uiCabecera = resultado.length ? resultado[0] : null;
+                        const uiCabecera = resultado.find(r=>r.con_rendimiento == conRendimiento && r.idcaporal == idcaporal);
 
                         if (!uiCabecera){
                             alert("Registro no encontrado.");
                             history.back();
                             return;
                         }
-
 
                         idregistrolabor = uiCabecera.id;
 
@@ -144,13 +141,18 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
                                                         idturno : uiCabecera.idturno,
                                                         labor : uiCabecera.labor, 
                                                         campo : uiCabecera.campo, 
-                                                        idtipotareo:  uiCabecera.idtipotareo}));
+                                                        con_rendimiento: uiCabecera.con_rendimiento == 1,
+                                                        idtipotareo:  uiCabecera.idtipotareo,
+                                                        caporal: Boolean(uiCabecera.caporal) ? uiCabecera.caporal : null
+                                                    }));
 
                         var $barSecondaryHeight = parseInt(self.$el.find(".bar-header-secondary").outerHeight()),
                             barMainHeight = 45;
                         $content = self.$el.find(".content");
                         $content.css({"padding-top":$barSecondaryHeight + barMainHeight+"px"})
                         $filtroBuscar = self.$el.find(".txt-buscar-filtrar");
+                        valorTareo = uiCabecera.valor_tareo;
+                        idUnidadMedida = uiCabecera.id_unidad_medida;
 
                         $lstAsistencia = self.$el.find(".lst-asistencia");
                         $lstAsignaciones = self.$el.find(".lst-asignaciones");
@@ -197,7 +199,7 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
                             return nItem;
                         }),
                         listaAsignacionesGeneral =  resultado.UIListaAsignacionesGeneral,
-                        listaAsignaciones = resultado.UIListaAsignaciones;
+                        listaAsignaciones = resultado.UIListaAsignaciones.filter(item=>item.con_rendimiento == conRendimiento &&  item.idcaporal == idcaporal);
 
                     listaAsistentesGeneral = listaAsistentesGeneral.filter( function( itemAsistente ) {
                       return !listaAsignacionesGeneral.find( function(itemAsignacion){
@@ -319,7 +321,11 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
                     numero_horas_diurno : numDiurno,
                     numero_horas_nocturno: numNocturno,
                     objLatitudLongitud : objLatitudLongitud,
-                    idregistrolabor: idregistrolabor
+                    idregistrolabor: idregistrolabor,
+                    con_rendimiento: conRendimiento,
+                    idcaporal: idcaporal,
+                    valor_tareo: valorTareo,
+                    id_unidad_medida: idUnidadMedida
                 })
                 .done(function(resultado){
                     self.listarListas();
@@ -429,7 +435,7 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
 
     this.eliminarRegistroLaborPersonal = function(dni_personal, nombres){ 
         new RegistroLaborPersonal({fecha_dia: fecha_dia, dni_personal: dni_personal})
-                    .eliminarRegistroLaborPersonal({ idlabor: idlabor, idcampo: idcampo, idturno: idturno})
+                    .eliminarRegistroLaborPersonal({ idlabor: idlabor, idcampo: idcampo, idturno: idturno, con_rendimiento: conRendimiento, idcaporal})
                     .done(function(res){
                             self.listarListas();
                         })
@@ -468,12 +474,17 @@ var FrmRegistroTareoView = function ({fecha_dia, idlabor, idcampo, idturno}) {
         this.$el.off("click",".btnasignar", this.asignar); 
 
         this.$el.off("keyup", ".txt-buscar-filtrar", __keyupinput);
-        $lstAsistencia.off("click","li.table-view-cell", __clickSeleccionar);
-        $lstAsignaciones.off("click","li.table-view-cell div.table-view-row-absolute button", __clickEliminar);
-        $lstAsignaciones.off("change","li.table-view-cell div.table-view-row-absolute input.horas-uno", __changeNumHoras);
-        $lstAsignaciones.off("change","li.table-view-cell div.table-view-row-absolute input.horas-dos", __changeNumHoras);
 
-        _listaAsistentes = null;
+        if (Boolean($lstAsistencia)){
+            $lstAsistencia.off("click","li.table-view-cell", __clickSeleccionar);
+            $lstAsignaciones.off("click","li.table-view-cell div.table-view-row-absolute button", __clickEliminar);
+            $lstAsignaciones.off("change","li.table-view-cell div.table-view-row-absolute input.horas-uno", __changeNumHoras);
+            $lstAsignaciones.off("change","li.table-view-cell div.table-view-row-absolute input.horas-dos", __changeNumHoras);
+
+            _listaAsistentes = null;
+            return;
+        }
+        
 
         if (listaAsistenciaListView){
             listaAsistenciaListView.destroy();

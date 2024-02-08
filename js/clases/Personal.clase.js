@@ -40,6 +40,13 @@ var Personal = function (data) {
     }));
   };
 
+  this.consultar = function () {
+    return $.when(_DB_HANDLER.listarFiltro(storeName, {
+      indexes: "idempresa",
+      values: this.idempresa
+    }));
+  };
+
   this.listar = function () {
     $.when(_DB_HANDLER.listar(storeName)).done(function (e) {
       console.log(e);

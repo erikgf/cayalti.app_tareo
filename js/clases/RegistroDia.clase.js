@@ -25,6 +25,7 @@ var RegistroDia = function (data) {
   };
 
   this.verificarExisteFecha = function () {
+    console.log(this.fecha_dia, this.idempresa);
     return $.when(_DB_HANDLER.listarFiltro(storeName, {
       "indexes": "fecha_dia,idempresa",
       "values": [this.fecha_dia, this.idempresa]
@@ -57,7 +58,6 @@ var RegistroDia = function (data) {
     });
 
 
-    console.log("ESTOY AGREGANDO NUEVA FECHA DIA");
     return $.when(_DB_HANDLER.registrar(storeName, objNuevoRegistro));
   };
 

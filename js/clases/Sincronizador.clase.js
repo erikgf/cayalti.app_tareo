@@ -104,6 +104,7 @@ const Sincronizador = function (tablasCargar) {
             }
 
             dataStore = datos[storeName];
+
             StoreName = window[storeName];
             if (StoreName === undefined ){
                 console.error("La CLASE del store "+storeName+" no está declarada.");

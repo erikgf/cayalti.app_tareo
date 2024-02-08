@@ -32,7 +32,7 @@ var LoginView = function() {
             objCacheGPS.set(isGPSActivated);
         }
 
-         this.$el.html(this.template({nombre_app: VARS.NOMBRE_APP, is_gps_activated : isGPSActivated}));
+         this.$el.html(this.template({isDevMode: VARS.SERVER_NAME === VARS.SERVER_NAME_DESARROLLO, nombre_app: VARS.NOMBRE_APP, is_gps_activated : isGPSActivated, version : VERSION_GLOBAL}));
          $txtEmpresa = this.$el.find("#txt-seleccionar-empresa");
          if (objCacheEmpresa.get() === null){
             objCacheEmpresa.set($txtEmpresa.val());
@@ -64,7 +64,7 @@ var LoginView = function() {
 
         var onIniciarSesion = function(){
             var $form = self.$el.find("form"),
-                _login = $form.find("#txt-login").val(), 
+                _login = $form.find("#txt-login").val().trim(), 
                 _clave = $form.find("#txt-clave").val(),
                 _empresa  = $form.find("#txt-seleccionar-empresa").val();
 
@@ -139,7 +139,7 @@ var LoginView = function() {
         objCacheEmpresa.set(empresaSeleccionada);
 
         var fechaUltima, hoy = _getHoy();
-        objSincronizador = new Sincronizador(["Usuario", "Actividad", "Campo","Labor", "Personal","Turno"]);
+        objSincronizador = new Sincronizador(["Usuario", "Actividad", "Campo","Labor", "Personal","Turno","UnidadMedida"]);
         objSincronizador.setCallBackFinish(function(){
           objCacheFechaSincro.set(hoy);
           objCacheEmpresaSincro.set(empresaSeleccionada);
@@ -212,13 +212,16 @@ var LoginView = function() {
       let claseRojo = "color-rojo";
       if (_clicks >= 5){
         _clicks = 0;
-        console.log("k", VARS.SERVER_NAME, self.$el.find("h3"));
         if (VARS.SERVER_NAME === VARS.SERVER_NAME_PRODUCCION){
           self.$el.find("h3").addClass(claseRojo);
           VARS.SERVER_NAME = VARS.SERVER_NAME_DESARROLLO;
+          localStorage.setItem(VARS.NOMBRE_STORAGE+"__cachedev", 1);
+          console.log("updated DEV");
         } else{
           self.$el.find("h3").removeClass(claseRojo);
           VARS.SERVER_NAME = VARS.SERVER_NAME_PRODUCCION;
+          localStorage.removeItem(VARS.NOMBRE_STORAGE+"__cachedev");
+          console.log("updated NON DEV");
         }
       }
 

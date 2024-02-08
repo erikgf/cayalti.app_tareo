@@ -1,9 +1,8 @@
 "use strict";
 
 var RegistroLaborPersonal = function (data) {
-  var self = this,
-      _DB_HANDLER = DB_HANDLER;
-  var storeName = "RegistroLaborPersonal";
+  const self = this, _DB_HANDLER = DB_HANDLER;
+  const storeName = "RegistroLaborPersonal";
   this.fecha_dia = "";
   this.idempresa = "";
   this.idcampo = "";
@@ -49,26 +48,34 @@ var RegistroLaborPersonal = function (data) {
     numero_horas_diurno,
     numero_horas_nocturno,
     objLatitudLongitud,
-    idregistrolabor
+    idregistrolabor,
+    con_rendimiento,
+    idcaporal,
+    valor_tareo,
+    id_unidad_medida
   }) {
 
     var objNuevoRegistros = arreglo_personal.map(function(item){
-	  var nuevoItem = Object.assign({}, item);
-
+	      var nuevoItem = Object.assign({}, item);
         nuevoItem.dni_usuario = self.dni_usuario;
         nuevoItem.fecha_dia =  self.fecha_dia;
         nuevoItem.idempresa =  self.idempresa;
         nuevoItem.idturno =  idturno;
         nuevoItem.idlabor =  idlabor;
         nuevoItem.idcampo =  idcampo;
+        nuevoItem.con_rendimiento = con_rendimiento;
+        nuevoItem.valor_tareo = valor_tareo;
+        nuevoItem.id_unidad_medida = id_unidad_medida;
         nuevoItem.numero_horas_diurno = numero_horas_diurno;
         nuevoItem.numero_horas_nocturno = numero_horas_nocturno;
         nuevoItem.latitud = objLatitudLongitud.latitud;
         nuevoItem.longitud = objLatitudLongitud.longitud;
         nuevoItem.idregistrolabor = idregistrolabor;
-    	nuevoItem.estado_envio = "0";
+    	  nuevoItem.estado_envio = "0";
+        nuevoItem.valor_rendimiento = "";
+        nuevoItem.idcaporal = idcaporal;
 
-	  return nuevoItem;
+	      return nuevoItem;
     });
     return $.when(_DB_HANDLER.registrar(storeName, objNuevoRegistros));
 
@@ -106,11 +113,16 @@ var RegistroLaborPersonal = function (data) {
   this.eliminarRegistroLaborPersonal = function ({
     idlabor,
     idcampo,
-    idturno
+    idturno,
+    con_rendimiento, 
+    idcaporal
   }) {
     return $.when(_DB_HANDLER.eliminar(storeName, {
       index: "fecha_dia,dni_personal,idlabor,idcampo,idturno,idempresa",
       value: [this.fecha_dia, this.dni_personal, idlabor, idcampo, idturno, this.idempresa]
+    }, (objRegistro) => {
+      return objRegistro.con_rendimiento == con_rendimiento &&
+              objRegistro.idcaporal == idcaporal;
     }));
   };
 
@@ -147,7 +159,6 @@ var RegistroLaborPersonal = function (data) {
   this.marcarRegistrosTareoEnviados = function ({
     estado_envio
   }) {
-    console.log(this.fecha_dia, this.idempresa);
     return $.when(_DB_HANDLER.actualizar(storeName, "=", "fecha_dia,idempresa", [this.fecha_dia, this.idempresa], null, {
       estado_envio: estado_envio
     }));

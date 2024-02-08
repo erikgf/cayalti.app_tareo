@@ -39,15 +39,18 @@ var RegistroLabor = function (data) {
     idlabor,
     idtipotareo,
     idturno,
-    id
+    con_rendimiento,
+    idcaporal,
   }) {
-    let indexes = "fecha_dia,dni_usuario,idempresa,idcampo,idlabor,idtipotareo,idturno";
-    let values = [this.fecha_dia, this.dni_usuario, this.idempresa, idcampo, idlabor, idtipotareo, idturno];
+    let indexes = "fecha_dia,dni_usuario,idempresa,idcampo,idlabor,idtipotareo,idturno,con_rendimiento,idcaporal";
+    let values = [this.fecha_dia, this.dni_usuario, this.idempresa, idcampo, idlabor, idtipotareo, idturno, con_rendimiento ? "1" : "0", idcaporal];
 
+    /*
     if (id != "") {
       indexes += ",id";
       values.push(id);
-    }
+    };
+    */
 
     return $.when(_DB_HANDLER.listarFiltro(storeName, {
       indexes: indexes,
@@ -65,21 +68,34 @@ var RegistroLabor = function (data) {
     labor,
     actividad,
     turno,
+    con_rendimiento,
+    id_unidad_medida,
+    unidad_medida,
+    valor_tareo,
+    idcaporal,
+    caporal,
     id
   }) {
-    var objNuevoRegistro = {
+
+    const objNuevoRegistro = {
       fecha_dia: this.fecha_dia,
       idempresa: this.idempresa,
       dni_usuario: this.dni_usuario,
-      idcampo: idcampo,
-      idactividad: idactividad,
-      idlabor: idlabor,
-      idtipotareo: idtipotareo,
-      idturno: idturno,
-      campo: campo,
-      labor: labor,
-      actividad: actividad,
-      turno: turno
+      idcampo,
+      idactividad,
+      idlabor,
+      idtipotareo,
+      idturno,
+      campo,
+      labor,
+      actividad,
+      turno,
+      con_rendimiento : con_rendimiento ? "1" : "0",
+      id_unidad_medida,
+      unidad_medida,
+      valor_tareo,
+      idcaporal,
+      caporal
     };
 
     if (id == "") {
@@ -92,7 +108,7 @@ var RegistroLabor = function (data) {
   this.getRegistro = function ({
     idcampo,
     idlabor,
-    idturno
+    idturno,
   }) {
     return $.when(_DB_HANDLER.listarFiltro(storeName, {
       indexes: "fecha_dia,dni_usuario,idempresa,idlabor,idcampo,idturno",
@@ -106,7 +122,7 @@ var RegistroLabor = function (data) {
     return $.when(_DB_HANDLER.eliminar(storeName, {
       index: "id",
       value: parseInt(id)
-    }, objRegistro => {
+    }, () => {
       return true;
     }));
   };

@@ -21,10 +21,17 @@ var DB_HANDLER;
 var SERVICIO_GPS;
 var DATA_NAV, DATA_NAV_JSON; /*VARIABLE SUPER IMPORTANTE QUE NOS DICTA SI ES QUE HAY O NO DIA ACTIVO EN EL SISTEMA.*/
 var TEMPLATES = {};
+var VERSION_GLOBAL;
 
 var onDeviceReady = function () {   
+    VERSION_GLOBAL = Boolean(window?.AppVersion) ? window.AppVersion.version : 'X.X.X';
     /* ---------------------------------- Local Variables ---------------------------------- */
     DATA_NAV_JSON = localStorage.getItem(VARS.NOMBRE_STORAGE);
+
+    const cacheDev = localStorage.getItem(VARS.NOMBRE_STORAGE+"__cachedev");
+    if (cacheDev == 1){
+      VARS.SERVER_NAME = VARS.SERVER_NAME_DESARROLLO;
+    }
 
     if ( DATA_NAV_JSON != null){
       DATA_NAV = JSON.parse(DATA_NAV_JSON); 
@@ -72,7 +79,6 @@ var onDeviceReady = function () {
 
           router.addRoute('listado-labores/:fechadia', function(fecha_dia) {
             if (DATA_NAV.acceso){
-                //CACHE_VIEW.seleccion_opcion.idturno = idturno;
                 slider.slidePage(new ListadoLaboresView({fecha_dia: fecha_dia}).render().$el);
             }
           });
@@ -82,22 +88,41 @@ var onDeviceReady = function () {
                 slider.slidePage(new FrmRegistroLaborView({
                                     fecha_dia: fecha_dia,
                                     id_registro_labor_edicion: idregistrolaboredicion
-                                  }).render().$el);
+                                  }).render().$el) ;
             }
           });
 
-          router.addRoute('registro-tareo/:fechadia/:idlabor/:idcampo/:idturno', function(fecha_dia, idlabor,idcampo,idturno) {
+          router.addRoute('registro-tareo/:fechadia/:idlabor/:idcampo/:idturno/:conrendimiento/:idcaporal', function(fecha_dia, idlabor,idcampo,idturno, conrendimiento, idcaporal) {
             if (DATA_NAV.acceso){
                 slider.slidePage(new FrmRegistroTareoView({
                                       fecha_dia : fecha_dia,
                                       idlabor: idlabor,
                                       idcampo : idcampo,
-                                      idturno : idturno
+                                      idturno : idturno,
+                                      conRendimiento: conrendimiento,
+                                      idcaporal
                                   }).render().$el);
             }
           });
 
+          router.addRoute('listado-labores-rendimientos/:fechadia', function(fecha_dia) {
+            if (DATA_NAV.acceso){
+                slider.slidePage(new ListadoLaboresRendimientoView({fecha_dia: fecha_dia}).render().$el);
+            }
+          });
 
+          router.addRoute('registro-rendimiento-tareo/:fechadia/:idlabor/:idcampo/:idturno/:idcaporal', function(fecha_dia, idlabor,idcampo,idturno, idcaporal) {
+            if (DATA_NAV.acceso){
+                slider.slidePage(new FrmRegistroRendimientoTareoView({
+                                      fecha_dia,
+                                      idlabor,
+                                      idcampo,
+                                      idturno,
+                                      idcaporal
+                                  }).render().$el);
+            }
+          });
+          
           router.start();
 
           if (DATA_NAV.acceso){
@@ -107,7 +132,7 @@ var onDeviceReady = function () {
           }
 
           checkgps();
-          //checkActualizar();
+          checkActualizar();
         }catch(e){
           console.error(e)
         };

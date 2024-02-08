@@ -160,7 +160,6 @@
 			box-shadow: 2px 2px 5px 0px rgba(0,0,0,0.75);
         }
 
-
         .pseudo-row:after{
         	content: "";
 			display: table;
@@ -183,15 +182,15 @@
 	    	<div class="content-listado"></div>    		    	 
 			<div class="busqueda-resultado"></div>
 	    </div></script> <script id='FrmRegistroLaborView-hbs' type='text/template'>	<header class="bar bar-nav">
-            <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
-                    <span class="icon icon-left-nav pull-left"></span>
-                    <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
-            </a>
-            <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
-                <div class="dropdown-rotulo">{{nombres_apellidos}}</div>
-            </div>
-            <h1 class="title">Registro Labor</h1>
-        </header>
+		<a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+				<span class="icon icon-left-nav pull-left"></span>
+				<img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
+		</a>
+		<div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
+			<div class="dropdown-rotulo">{{nombres_apellidos}}</div>
+		</div>
+		<h1 class="title">Registro Labor</h1>
+	</header>
 	<style type="text/css">
 
 		.bloque-mensaje{
@@ -204,23 +203,98 @@
 	    	<div class="content-padded">
 	    		<h6 class="text-left">REGISTRO DE LABOR</h6>
 		    	<form>
-		    	  <input type="text" readonly class="campos" placeholder="Seleccionar campo"/>
-		    	  <input type="text" readonly class="actividades" placeholder="Seleccionar actividades"/>
-		    	  <input type="text" readonly class="labores"/>
-				  <select class="turnos">
-				  </select>
-				  <select class="tipotareo">
-				  	<option value="T">POR TAREO</option>
-				  	<option value="J" selected>JORNAL</option>
-				  </select>
-				  <div class="bloque-mensaje"></div>
-				  <button type="button" class="btn btn-appbase btnguardar btn-block">GUARDAR</button>
-				  <button type="button" class="btn btn-negative btneliminar btn-block escondido">ELIMINAR</button>
-
-				  <a href="javascript:;" onclick="history.back();" class="btn-sm">VOLVER A LA LISTA</button>
+					<input type="text" readonly class="campos" placeholder="Seleccionar campo"/>
+					<input type="text" readonly class="actividades" placeholder="Seleccionar actividades"/>
+					<input type="text" readonly class="labores"/>
+					<select class="turnos">
+					</select>
+					<select class="tipotareo">
+					<option value="T">POR TAREO</option>
+					<option value="J" selected>JORNAL</option>
+					</select>
+					<div style="display: flex; align-items: center; margin-bottom: 12px; gap: 6px;">
+							¿CON CAPORAL? <input type="checkbox" class="chk-caporal" style="width: 20px;height:20px"/> 
+					</div>
+					<input type="text" readonly class="caporal" placeholder="Seleccionar CAPORAL" style="display: none; align-items: center; margin-bottom: 12px; gap: 6px;background-color:#e8e8e6" />
+					<div style="display: flex; align-items: center; margin-bottom: 12px; gap: 6px;">
+						¿CON RENDIMIENTO? <input type="checkbox" class="chk-rendimiento" style="width: 20px;height:20px"/> 
+					</div>
+					<div class="blk-rendimiento" style="display: none;gap: 10px;">
+					<select class="unidad-medida">
+						<option selected value=''>Seleccionar Unid. Med.</option>
+					</select>
+					<input type="text" class="valor-tareo" value="" placeholder="Valor Tareo"/>
+					</div>
+					<div class="bloque-mensaje"></div>
+					<button type="submit" class="btn btn-appbase btnguardar btn-block">GUARDAR</button>
+					<button type="button" class="btn btn-negative btneliminar btn-block escondido">ELIMINAR</button>
+					<a href="javascript:;" onclick="history.back();" class="btn-sm">VOLVER A LA LISTA</button>
 				</form>
 			</div>
-	    </div></script> <script id='FrmRegistroTareoView-hbs' type='text/template'>    	<header class="bar bar-nav">
+	    </div></script> <script id='FrmRegistroRendimientoTareoView-hbs' type='text/template'>    	<header class="bar bar-nav">
+            <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+                    <span class="icon icon-left-nav pull-left"></span>
+                    <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
+            </a>
+            <h1 class="title">Rendimientos Tareo</h1>
+        </header>
+
+        <style type="text/css">
+
+        .badge-turno{
+            padding: 7.5px 12px !important;
+            font-size: 18px !important;
+            background: #ff4444 !important;
+            color: white !important;
+        }
+
+        .bar-header-secondary{
+            height: initial;
+        }
+
+        .bar-header-secondary .table-view{
+            font-size: .85em;
+        }
+    
+        .table-view-cell{
+            padding: 10px;
+        }
+
+        .lst {
+            font-size: .85em;
+        }
+
+        </style>
+
+        <div class="bar bar-standard bar-header-secondary">	 
+            <ul class="table-view">
+                <li class="row-duo table-view-row bold">
+                    <div>{{fecha_registro}}</div>
+                    <div>{{turno}}</div>
+                </li>
+                <li class="table-view-cell table-view-row">
+                    <div> Campo: {{campo}} </div>
+                    {{#caporal}}
+                    <div> Caporal: {{this}}</div>
+                    {{/caporal}}
+				</li>
+            	<li class="table-view-cell">
+                    <b>Labor: {{labor}}</b>
+				</li>
+                <li class="row-duo table-view-row">
+                     <div> Tareo: {{#if_ idtipotareo '==' 'J'}}JORNAL{{else}}POR TAREO{{/if_}} </div>
+                     <div class="bold"> U.M.: {{unidad_medida}}</div>
+                </li>
+            </ul>
+	    </div>
+
+    	<div class="content">
+    		<div class="content-padded">
+                <input class="txt-buscar-filtrar" type="search" placeholder="Buscar..."/>
+                <ul class="lst lst-rendimientos table-view"></ul>
+           </div>
+		</div>
+</script> <script id='FrmRegistroTareoView-hbs' type='text/template'>    	<header class="bar bar-nav">
             <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
                     <span class="icon icon-left-nav pull-left"></span>
                     <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
@@ -275,11 +349,14 @@
             <ul class="table-view">
                 <li class="row-duo table-view-row bold">
                     <div>{{fecha_registro}}</div>
-                    <div>{{turno}}</div>
+                    <div>{{turno}} {{#con_rendimiento}}<small>(CON RENDIMIENTO)</small>{{/con_rendimiento}}</div>
                 </li>
                 <div class="row-duo table-view-row">
                     <div> Campo: {{campo}} </div>
-                    <div> Tareo: {{#if_ idtipotareo '==' 'J'}}JORNAL{{else}}POR TAREO{{/if_}} </div>
+                    {{#caporal}}
+                    <div> Caporal: {{this}}</div>
+                    {{/caporal}}
+                    <!-- <div> : {{#if_ idtipotareo '==' 'J'}}JORNAL{{else}}POR TAREO{{/if_}} </div> -->
                 </div>
             	<li class="table-view-cell">
                     <b>Labor: {{labor}}</b>
@@ -494,14 +571,140 @@
 <li data-id="{{fecha_dia_raw}}" class="table-view-cell {{#if opcion_seleccionada}}btn-dayselected{{else}}btn-gray{{/if}}">
 	<a> DÍA: {{fecha_dia}}</a> 
 </li>
-{{/.}}</script> <script id='ListadoLaboresView-hbs' type='text/template'>    	<header class="bar bar-nav">
+{{/.}}</script> <script id='ListaRendimientosTareoListView-hbs' type='text/template'>	<style type="text/css">
+		.table-view-cell{
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.holo{
+			max-width: 90px;
+		}
+
+		.label-guardado{
+			left: 185px;
+		    padding: 5px 10px;
+		    margin-top: 5px;
+		    border-radius: 1em;
+		    font-size: 10px;
+		}
+
+		.icon-check{
+			font-size: 15px;
+		}
+
+		.btn-check{
+			height: 32.5px;
+			border-radius: 2.5em;
+			line-height: 1.5;
+			border: 0;
+			-webkit-box-shadow: inset 0 -1px 0 rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.2), 0 1px 1px rgba(0,0,0,.25);
+   			box-shadow: inset 0 -1px 0 rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.2), 0 1px 1px rgba(0,0,0,.25);
+		}
+
+		.btn-check:hover{
+			opacity: .85;
+		}
+
+		.bg-verde {
+			background-color: #36a64e !important;
+			color: white;
+		}
+	</style>
+	{{#registros}}
+		<li class="table-view-cell">
+			<div class="nombre">{{dni_personal}} - {{nombres_apellidos}}</div>
+			<input type="text" data-dni="{{dni_personal}}" class="holo bg-verde text-center valor-rendimiento" readonly value="{{valor_rendimiento}}" />
+			<input type="number" data-dni="{{dni_personal}}" class="holo text-center valor-acumulador" value="0" />
+			<button class="btn-check btn-sm bg-verde btn-guardar-valor">OK</span></button>
+			<span class="escondido btn-check btn-sm btn-appbase"> <span class="icon icon-check"></span></span>
+		</li> 
+	{{else}}
+		<p>No hay tareos.</p>
+	{{/registros}}
+</script> <script id='ListadoLaboresRendimientoView-hbs' type='text/template'>    	<header class="bar bar-nav">
             <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
                     <span class="icon icon-left-nav pull-left"></span>
                     <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
             </a>
-            <div class="btn btn-fake btn-nav dropdown pull-right" id="btn-menu">
-                <div class="dropdown-rotulo">{{nombre_usuario}}</div>
-            </div>
+            <h1 class="title">Listado Rendimiento</h1>
+        </header>
+
+        <style type="text/css">
+
+        .badge-turno{
+            font-size: 18px !important;
+            background: #ff4444 !important;
+            color: white !important;
+        }
+
+        .media-body p{
+            color: black;
+        }
+
+        .float{
+            position:fixed;
+            width:60px;
+            height:60px;
+            bottom:30px;
+            right:30px;        
+            border-radius:50px;
+            text-align:center;
+            box-shadow: 2px 2px 3px #999;
+        }
+
+        .my-float{
+            margin-top:22px;
+        }
+
+        .lbl-actividad{
+            font-size: 1.2em;
+        }
+
+        .badge-positive {
+            color: #fff;
+            background-color: #2fac49;
+        }
+
+        .lbl-caporal{
+
+        }
+
+        </style>
+
+        <div class="content">
+            <div class="content-padded">  
+                <div class="text-center">
+                    <h4>Fecha de Trabajo</h4>      
+                    <h3 class="fecha">{{fecha_registro}}</h3>
+                </div>  
+                <hr>
+                <ul class="table-view">
+                    {{#each listado_labores}}
+                    <li class="table-view-cell" data-idedicion="{{../fecha_registro_raw}}/{{id}}" data-cadenaid="{{../fecha_registro_raw}}/{{idlabor}}/{{idcampo}}/{{idturno}}/{{idcaporal}}">
+                        <a class="navigate-right" href="javascript:void(0);" style="font-size:.8em">
+                          <span class="badge badge-md {{badge_negative_class}}">{{registros_pendientes_rendimiento}}/{{registros_totales}}</span>
+                          <div class="media-body">
+                            <small>{{campo}} | <b>{{turno}}</b><br></small>
+                            <b class="lbl-actividad">{{actividad}}</b><br>
+                            <b>{{labor}}</b><br>
+                            {{#caporal}}<i class="lbl-caporal">Cap: {{this}}</i><br>{{/caporal}}
+                            <div style="color:#2fac49"><b>Unidad Medida: </b>{{unidad_medida}}</div>
+                          </div>
+                        </a>
+                   </li>
+                   {{else}}
+                   <div class="text-center"><small>No hay Labores para Rendimiento Registradas</small></div>
+                   {{/each}}
+                </ul>
+            </div> 
+        </div>
+</script> <script id='ListadoLaboresView-hbs' type='text/template'>    	<header class="bar bar-nav">
+            <a class="btn-bar btn-nav pull-left btn-back-img"  href="javascript:;" onclick="history.back();">
+                    <span class="icon icon-left-nav pull-left"></span>
+                    <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
+            </a>
             <h1 class="title">Listado Tareo</h1>
         </header>
 
@@ -536,6 +739,10 @@
             font-size: 1.2em;
         }
 
+        .lbl-caporal{
+            font-size: .85em;
+        }
+
         </style>
 
         <div class="content">
@@ -547,13 +754,15 @@
                 <hr>
                 <ul class="table-view">
                     {{#each listado_labores}}
-                    <li class="table-view-cell" data-idedicion="{{../fecha_registro_raw}}/{{id}}" data-cadenaid="{{../fecha_registro_raw}}/{{idlabor}}/{{idcampo}}/{{idturno}}">
+                    <li class="table-view-cell" data-idedicion="{{../fecha_registro_raw}}/{{id}}" data-cadenaid="{{../fecha_registro_raw}}/{{idlabor}}/{{idcampo}}/{{idturno}}/{{#if con_rendimiento}}1{{else}}0{{/if}}/{{idcaporal}}">
                         <a class="navigate-right" href="javascript:void(0);" style="font-size:.8em">
                           <span class="badge badge-md">{{registros_totales}}</span>
                           <div class="media-body">
                             <small>{{campo}} | <b>{{turno}}</b><br></small>
                             <b class="lbl-actividad">{{actividad}}</b><br>
                             <b>{{labor}}</b><br>
+                            {{#caporal}}<i class="lbl-caporal">Cap: {{this}}</i><br>{{/caporal}}
+                            {{#con_rendimiento}}<b class="badge btn-outlined">CON RENDIMIENTO</b><br>{{/con_rendimiento}}
                           </div>
                         </a>
                    </li>
@@ -579,7 +788,7 @@
 
 <div class="content">
       <div class="content-padded text-center" style="padding-top:16px">
-        <div class="text-center">
+        <div class="text-center {{#if_ isDevMode '==' '1'}}color-rojo{{/if_}}">
           <h3>{{nombre_app}}</h3>
         </div>
         <img src="assets/img/LogoCayalti.jpg" class="img-logo-main"/>
@@ -595,12 +804,13 @@
                 </ul>
                 <select required id="txt-seleccionar-empresa">
                   <option value="001" selected>CAYALTI</option>
-                  <option value="002">YARAMBAMBA</option>
+                  <option value="002">YARABAMBA</option>
                 </select> 
                 <hr>
                 <input required type="text" id="txt-login" value="" placeholder="Usuario">
                 <input required type="password" id="txt-clave" value="" placeholder="Clave">
                 <button class="btn btn-block btn-appbase">INGRESAR</button>
+                <small style="color:green">{{version}}</small>
           </form>
         </div>
       </div>
@@ -694,6 +904,11 @@
                 <p>
                     <button data-url="listado-labores" class="btn-left btnopcion btn btn-block btn-appbase">TAREO
                          <span class="badge badge-turno">{{registros_pendientes_tareo_envio}} / {{registros_tareo_totales}}</span>
+                    </button>
+                </p>
+                <p>
+                    <button data-url="listado-labores-rendimientos" class="btn-left btnopcion btn btn-block btn-positive">RENDIMIENTO
+                         <span class="badge badge-turno">{{registros_pendientes_rendimiento_envio}} / {{registros_rendimiento_totales}}</span>
                     </button>
                 </p>
             </div>  

@@ -10,7 +10,7 @@
 
 <div class="content">
       <div class="content-padded text-center" style="padding-top:16px">
-        <div class="text-center">
+        <div class="text-center {{#if_ isDevMode '==' '1'}}color-rojo{{/if_}}">
           <h3>{{nombre_app}}</h3>
         </div>
         <img src="assets/img/LogoCayalti.jpg" class="img-logo-main"/>
@@ -26,12 +26,13 @@
                 </ul>
                 <select required id="txt-seleccionar-empresa">
                   <option value="001" selected>CAYALTI</option>
-                  <option value="002">YARAMBAMBA</option>
+                  <option value="002">YARABAMBA</option>
                 </select> 
                 <hr>
                 <input required type="text" id="txt-login" value="" placeholder="Usuario">
                 <input required type="password" id="txt-clave" value="" placeholder="Clave">
                 <button class="btn btn-block btn-appbase">INGRESAR</button>
+                <small style="color:green">{{version}}</small>
           </form>
         </div>
       </div>

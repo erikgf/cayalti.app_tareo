@@ -3,7 +3,7 @@
                     <span class="icon icon-left-nav pull-left"></span>
                     <img class="vertical-center" src="assets/img/{{imagen_icon}}"/>
             </a>
-            <h1 class="title">Listado Tareo</h1>
+            <h1 class="title">Listado Rendimiento</h1>
         </header>
 
         <style type="text/css">
@@ -37,8 +37,13 @@
             font-size: 1.2em;
         }
 
+        .badge-positive {
+            color: #fff;
+            background-color: #2fac49;
+        }
+
         .lbl-caporal{
-            font-size: .85em;
+
         }
 
         </style>
@@ -52,25 +57,21 @@
                 <hr>
                 <ul class="table-view">
                     {{#each listado_labores}}
-                    <li class="table-view-cell" data-idedicion="{{../fecha_registro_raw}}/{{id}}" data-cadenaid="{{../fecha_registro_raw}}/{{idlabor}}/{{idcampo}}/{{idturno}}/{{#if con_rendimiento}}1{{else}}0{{/if}}/{{idcaporal}}">
+                    <li class="table-view-cell" data-idedicion="{{../fecha_registro_raw}}/{{id}}" data-cadenaid="{{../fecha_registro_raw}}/{{idlabor}}/{{idcampo}}/{{idturno}}/{{idcaporal}}">
                         <a class="navigate-right" href="javascript:void(0);" style="font-size:.8em">
-                          <span class="badge badge-md">{{registros_totales}}</span>
+                          <span class="badge badge-md {{badge_negative_class}}">{{registros_pendientes_rendimiento}}/{{registros_totales}}</span>
                           <div class="media-body">
                             <small>{{campo}} | <b>{{turno}}</b><br></small>
                             <b class="lbl-actividad">{{actividad}}</b><br>
                             <b>{{labor}}</b><br>
                             {{#caporal}}<i class="lbl-caporal">Cap: {{this}}</i><br>{{/caporal}}
-                            {{#con_rendimiento}}<b class="badge btn-outlined">CON RENDIMIENTO</b><br>{{/con_rendimiento}}
+                            <div style="color:#2fac49"><b>Unidad Medida: </b>{{unidad_medida}}</div>
                           </div>
                         </a>
                    </li>
                    {{else}}
-                   <div class="text-center"><small>No hay Labores Registradas</small></div>
+                   <div class="text-center"><small>No hay Labores para Rendimiento Registradas</small></div>
                    {{/each}}
                 </ul>
-            </div>  
-
-            <a href="#registro-labor/{{fecha_registro_raw}}/" class="btn-appbase float">
-                <span class="icon icon-plus my-float"></i>
-            </a>
+            </div> 
         </div>

@@ -1,10 +1,8 @@
-var ListadoLaboresView = function ({fecha_dia}) {
-	var self = this,
-		fechaOK = false,
+var ListadoLaboresRendimientoView = function ({fecha_dia}) {
+	var self = this;
+	let fechaOK = false,
         $content,
-        $fecha,
-        $actualTab, $actualContainer,
-        modalMensaje;
+        $fecha;
 
 	this.initialize = function () {
         this.$el = $('<div/>');       
@@ -15,26 +13,8 @@ var ListadoLaboresView = function ({fecha_dia}) {
     };
 
     this.setEventos = function(){
-        var indexHoldTap = 0,
-            timeoutHoldTap;
-
-        $content.on('mousedown touchstart', ".table-view .table-view-cell", function(e) {
-            var $this = this;
-            timeoutHoldTap = setInterval(function(){
-              indexHoldTap++;
-              if (indexHoldTap >= 10){
-                router.load("registro-labor/"+$this.dataset.idedicion);
-                clearInterval(timeoutHoldTap);
-                indexHoldTap = 0;
-              }
-            }, 100);
-          }).bind('mouseup mouseleave touchend', ".table-view .table-view-cell", function(){
-            clearInterval(timeoutHoldTap);
-          });
-
-
         $content.on("click", ".table-view .table-view-cell", function(e){
-            router.load("registro-tareo/"+this.dataset.cadenaid);
+            router.load("registro-rendimiento-tareo/"+this.dataset.cadenaid);
         });
     };
 
@@ -52,16 +32,22 @@ var ListadoLaboresView = function ({fecha_dia}) {
 
         $.whenAll(reqObj)
               .done(function(resultado){
-                const registrosDiaLaborPersonal = resultado.obtenerRegistrosDiaLaborPersonal;
-                let objProcesarArreglo;
+                var registrosDiaLaborPersonal = resultado.obtenerRegistrosDiaLaborPersonal;
 
-                let listado_labores = resultado.obtenerRegistrosDiaLabor.map(function(item){
-                    objProcesarArreglo = _fnSepararArregloSegunCriterio(registrosDiaLaborPersonal, 
-                                                                            function(o){
-                                                                                return o.idregistrolabor == item.id 
-                                                                                            && o.con_rendimiento == item.con_rendimiento 
-                                                                                            && o.idcaporal == item.idcaporal;
-                                                                            });
+                let listado_labores = resultado.obtenerRegistrosDiaLabor
+                    .filter(item=>{
+                        return item.con_rendimiento == 1
+                    })
+                    .map(function(item){
+                    const objProcesarArreglo = _fnSepararArregloSegunCriterio(registrosDiaLaborPersonal, 
+                                                    function(o){
+                                                        return o.idregistrolabor == item.id && o.con_rendimiento == '1';
+                                                });
+                    const registros_pendientes_rendimiento = objProcesarArreglo.cumplen.filter(item=>{
+                        return item.valor_rendimiento === "";
+                    }).length;
+                    const registros_totales = objProcesarArreglo.cumplen.length;
+                    
                     return {
                         id: item.id,
                         campo: item.campo,
@@ -74,10 +60,12 @@ var ListadoLaboresView = function ({fecha_dia}) {
                         idturno: item.idturno,
                         labor: item.labor,
                         turno: item.turno,
-                        con_rendimiento : item.con_rendimiento == 1,
-                        registros_totales: objProcesarArreglo.cumplen.length,
+                        unidad_medida: item.unidad_medida,
+                        caporal: Boolean(item.idcaporal) ? item.caporal : null,
                         idcaporal: item.idcaporal,
-                        caporal: Boolean(item.idcaporal) ? item.caporal : null
+                        registros_totales,
+                        registros_pendientes_rendimiento : registros_totales - registros_pendientes_rendimiento,
+                        badge_negative_class: registros_pendientes_rendimiento > 0 ? 'badge-negative' : 'badge-positive'
                     }
                 });
 
@@ -97,6 +85,16 @@ var ListadoLaboresView = function ({fecha_dia}) {
         reqObj = null;
 	};
 
+    var checkFechaTrabajoVariable = function(){
+        if (fechaOK == true){
+            $fecha.removeClass("color-rojo");
+            $fecha.addClass("color-verde"); 
+        }  else{
+            $fecha.removeClass("color-verde");
+            $fecha.addClass("color-rojo");
+        }
+    };
+
     this.destroy = function(){
         $fecha = null;
 
@@ -104,9 +102,9 @@ var ListadoLaboresView = function ({fecha_dia}) {
             $content.off("mouseup mouseleave touchend");
             $content.off("mousedown touchstart");
             $content.off("click");
+    
+            $content = null;
         }
-
-        $content = null;
         $actualContainer = null;
         $actualTab = null;
 

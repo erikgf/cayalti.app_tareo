@@ -41,7 +41,7 @@ var InicioView = function () {
 	};
 
 	this.sincronizarDatos = function(){
-		objSincronizador = new Sincronizador(["Usuario", "Actividad", "Campo","Labor", "Personal","Turno"]);
+		objSincronizador = new Sincronizador(["Usuario", "Actividad", "Campo","Labor", "Personal","Turno","UnidadMedida"]);
         objSincronizador.sincronizarDatos();
 	};
 

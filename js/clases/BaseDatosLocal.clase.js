@@ -10,7 +10,7 @@ const BaseDatosLocal = function () {
   5.- Enviar informacion
   */
   var DB_NOMBRE = "bd_asistencia_labores_cayalti";
-  var VERSION = 6;
+  var VERSION = 9;
   var self = this;
   var db;
 
@@ -26,8 +26,6 @@ const BaseDatosLocal = function () {
         for (var i = viejaVersion + 1; i <= nuevaVersion; i++) {
           self["upgradeVersion_" + i](db, tx);
         }
-
-        ;
       };
 
       dbconnect.onsuccess = function (ev) {
@@ -234,8 +232,6 @@ const BaseDatosLocal = function () {
           unique: (_campo$unique = campo.unique) !== null && _campo$unique !== void 0 ? _campo$unique : false
         });
       }
-
-      ;
     }
 
     ;
@@ -272,8 +268,6 @@ const BaseDatosLocal = function () {
       store = tx.objectStore(table.nombre);
       store.createIndex("idempresa", "idempresa");
     }
-
-    ;
   };
 
   this.upgradeVersion_3 = function (db, tx) {
@@ -300,7 +294,6 @@ const BaseDatosLocal = function () {
     store.createIndex('fecha_dia,dni_usuario,idempresa,idcampo,idlabor,idtipotareo,idturno,id', ['fecha_dia', 'dni_usuario', 'idempresa', 'idcampo', 'idlabor', 'idtipotareo', 'idturno', 'id']);
     store.createIndex('id', 'id');
     store.createIndex('fecha_dia,dni_usuario,idempresa,idlabor,idcampo,idturno', ['fecha_dia', 'dni_usuario', 'idempresa', 'idlabor', 'idcampo', 'idturno']);
-    return;
   };
 
   this.upgradeVersion_4 = function (db, tx) {
@@ -308,7 +301,6 @@ const BaseDatosLocal = function () {
     store.createIndex('fecha_dia,idempresa', ['fecha_dia', 'idempresa']);
     store = tx.objectStore("RegistroLabor");
     store.createIndex('fecha_dia,idempresa', ['fecha_dia', 'idempresa']);
-    return;
   };
 
   this.upgradeVersion_5 = function (db, tx) {
@@ -316,13 +308,54 @@ const BaseDatosLocal = function () {
     store.createIndex('fecha_dia,estado_envio,idempresa', ['fecha_dia', 'estado_envio', 'idempresa']);
     store = tx.objectStore("RegistroLaborPersonal");
     store.createIndex('fecha_dia,estado_envio,idempresa', ['fecha_dia', 'estado_envio', 'idempresa']);
-    return;
   };
 
   this.upgradeVersion_6 = function (db, tx) {
     let store = tx.objectStore("RegistroLaborPersonal");
     store.createIndex('fecha_dia,dni_personal,idlabor,idcampo,idturno,idempresa', ['fecha_dia', 'dni_personal', 'idlabor', 'idcampo', 'idturno', 'idempresa']);
-    return;
+  };
+
+  this.upgradeVersion_7 = function (db, tx) {
+    let store = tx.objectStore("RegistroLabor");
+    store.createIndex("unidad_medida","unidad_medida");
+    store.createIndex("con_rendimiento","con_rendimiento");
+    store.createIndex("valor_tareo","valor_tareo");
+    store.createIndex("id_unidad_medida","id_unidad_medida");
+    
+    store = tx.objectStore("RegistroLaborPersonal");
+    store.createIndex("valor_tareo","valor_tareo");
+    store.createIndex("id_unidad_medida","id_unidad_medida");
+    store.createIndex("con_rendimiento","con_rendimiento");
+    store.createIndex("valor_rendimiento","valor_rendimiento");
+    store.createIndex("hora_registro_valor","hora_registro_valor");
+
+    store = db.createObjectStore("UnidadMedida", {
+      keyPath: 'id',
+      autoIncrement: true
+    });
+
+    store.createIndex("id_unidad_medida","id_unidad_medida");
+    store.createIndex("descripcion","descripcion");
+    store.createIndex("idempresa", "idempresa");
+  };
+
+  this.upgradeVersion_8 = function (db, tx) {
+    let store = tx.objectStore("RegistroLabor");
+    store.createIndex('fecha_dia,dni_usuario,idempresa,idcampo,idlabor,idtipotareo,idturno,con_rendimiento', ['fecha_dia', 'dni_usuario', 'idempresa', 'idcampo', 'idlabor', 'idtipotareo', 'idturno', 'con_rendimiento']);
+    store.createIndex('fecha_dia,dni_usuario,idempresa,idcampo,idlabor,idtipotareo,idturno,con_rendimiento,id', ['fecha_dia', 'dni_usuario', 'idempresa', 'idcampo', 'idlabor', 'idtipotareo', 'idturno', 'con_rendimiento','id']);
+  };
+
+  this.upgradeVersion_9 = function (db, tx) {
+    let store = tx.objectStore("RegistroLabor");
+    store.createIndex('idcaporal', 'idcaporal');
+    store.createIndex('caporal', 'caporal');
+    store.createIndex('fecha_dia,dni_usuario,idempresa,idcampo,idlabor,idtipotareo,idturno,con_rendimiento,idcaporal', ['fecha_dia', 'dni_usuario', 'idempresa', 'idcampo', 'idlabor', 'idtipotareo', 'idturno', 'con_rendimiento','idcaporal']);
+    store.createIndex('fecha_dia,dni_usuario,idempresa,idcampo,idlabor,idtipotareo,idturno,con_rendimiento,idcaporal,id', ['fecha_dia', 'dni_usuario', 'idempresa', 'idcampo', 'idlabor', 'idtipotareo', 'idturno', 'con_rendimiento','idcaporal','id']);
+
+    store = tx.objectStore("RegistroLaborPersonal");
+    store.createIndex('idcaporal', 'idcaporal');
+    store.createIndex('fecha_dia,dni_personal,idempresa,idcampo,idlabor,idturno,con_rendimiento', ['fecha_dia', 'dni_personal', 'idempresa', 'idcampo', 'idlabor',  'idturno', 'con_rendimiento']);
+    store.createIndex('fecha_dia,dni_personal,idempresa,idcampo,idlabor,idturno,con_rendimiento,idcaporal', ['fecha_dia', 'dni_personal', 'idempresa', 'idcampo', 'idlabor', 'idturno', 'con_rendimiento','idcaporal']);
   };
 
   this.registrar = function (storeName, data) {
@@ -398,8 +431,6 @@ const BaseDatosLocal = function () {
         for (var i = 0; i < objBusqueda.key.length; i++) {
           cadenaDeBusqueda = cadenaDeBusqueda + " " + cursor.value[objBusqueda.key[i]];
         }
-
-        ;
 
         if (cadenaDeBusqueda.indexOf(objBusqueda.value) !== -1) {
           resultSet.push(cursor.value);
@@ -567,6 +598,8 @@ const BaseDatosLocal = function () {
     var IDBKey = obtenerIDBKey(where, id1, id2);
     var query = index.openCursor(IDBKey);
     var registrosActualizados = 0;
+
+
     return $.Deferred(function (d) {
       query.onsuccess = function (ev) {
         var cursor = ev.target.result;
